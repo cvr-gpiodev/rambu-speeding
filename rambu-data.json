@@ -2,7 +2,7 @@
   "rambu": [
     {
       "lon": 117.49389,
-      "lat": 2.153491,
+      "lat": -2.153491,
       "nama": "RANGGA_MUATAN",
       "limit": 20,
       "radius": 100,
@@ -12,7 +12,7 @@
     },
     {
       "lon": 117.494247,
-      "lat": 2.156647,
+      "lat": -2.156647,
       "nama": "KEMAS_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -22,7 +22,7 @@
     },
     {
       "lon": 117.493704,
-      "lat": 2.15603,
+      "lat": -2.15603,
       "nama": "SIMPANG3_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -32,7 +32,7 @@
     },
     {
       "lon": 117.493036,
-      "lat": 2.155436,
+      "lat": -2.155436,
       "nama": "MASJID_MUATAN",
       "limit": 20,
       "radius": 100,
@@ -42,7 +42,7 @@
     },
     {
       "lon": 117.4913,
-      "lat": 2.154073,
+      "lat": -2.154073,
       "nama": "ATM_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -52,7 +52,7 @@
     },
     {
       "lon": 117.489321,
-      "lat": 2.153312,
+      "lat": -2.153312,
       "nama": "PERTIGAAN_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -62,7 +62,7 @@
     },
     {
       "lon": 117.488214,
-      "lat": 2.153124,
+      "lat": -2.153124,
       "nama": "HOTEL_BS_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -72,7 +72,7 @@
     },
     {
       "lon": 117.48611,
-      "lat": 2.153024,
+      "lat": -2.153024,
       "nama": "JEMBATAN_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -82,7 +82,7 @@
     },
     {
       "lon": 117.459682,
-      "lat": 2.160539,
+      "lat": -2.160539,
       "nama": "POLRES_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -92,7 +92,7 @@
     },
     {
       "lon": 117.459682,
-      "lat": 2.162307,
+      "lat": -2.162307,
       "nama": "KM5_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -102,7 +102,7 @@
     },
     {
       "lon": 117.491657,
-      "lat": 2.154372,
+      "lat": -2.154372,
       "nama": "DERMAGA_MUATAN",
       "limit": 30,
       "radius": 100,
@@ -112,7 +112,7 @@
     },
     {
       "lon": 117.461541,
-      "lat": 2.159435,
+      "lat": -2.159435,
       "nama": "INDOMARET_KOSONGAN",
       "limit": 30,
       "radius": 100,
@@ -122,7 +122,7 @@
     },
     {
       "lon": 117.476659,
-      "lat": 2.150898,
+      "lat": -2.150898,
       "nama": "SPBU_KOSONGAN",
       "limit": 30,
       "radius": 100,
@@ -132,7 +132,7 @@
     },
     {
       "lon": 117.481532,
-      "lat": 2.152034,
+      "lat": -2.152034,
       "nama": "SAMBIT_KOSONGAN",
       "limit": 30,
       "radius": 100,
@@ -141,6 +141,6 @@
       "enabled": true
     }
   ],
-  "last_updated": "2024-01-27T10:00:00Z",
+  "last_updated": "2024-01-28T10:00:00Z",
   "total_count": 14
 }
