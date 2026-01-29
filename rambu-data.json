@@ -8,7 +8,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 1,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.494247,
@@ -18,7 +20,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 3,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.493704,
@@ -28,7 +32,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 4,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.493036,
@@ -38,7 +44,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 6,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.4913,
@@ -48,7 +56,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 8,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.489321,
@@ -58,7 +68,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 10,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.488214,
@@ -68,7 +80,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 12,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.48611,
@@ -78,7 +92,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 14,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.459682,
@@ -88,7 +104,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 16,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.459682,
@@ -98,7 +116,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 18,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.491657,
@@ -108,7 +128,9 @@
       "radius": 100,
       "jalur": 0,
       "checkpoint": 20,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.461541,
@@ -118,7 +140,9 @@
       "radius": 100,
       "jalur": 1,
       "checkpoint": 1,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.476659,
@@ -128,7 +152,9 @@
       "radius": 100,
       "jalur": 1,
       "checkpoint": 3,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     },
     {
       "lon": 117.481532,
@@ -138,7 +164,9 @@
       "radius": 100,
       "jalur": 1,
       "checkpoint": 5,
-      "enabled": true
+      "enabled": true,
+      "mp3Track": 4,
+      "oneTimeMP3": false
     }
   ],
   "last_updated": "2024-01-28T10:00:00Z",
