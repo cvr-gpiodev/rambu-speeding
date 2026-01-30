@@ -417,7 +417,7 @@
       </div>
       
       <div style="font-size:11px;color:#666;margin-top:8px">
-        <strong>Note:</strong> Device must be registered here before ESP32 can send status.
+        <strong>Note:</strong> Device must be registered here before monitoring.
       </div>
     </div>
     
@@ -475,22 +475,12 @@ const CONNECTION_TIMEOUT = 30000; // 30 detik
 
 // ============ TAB FUNCTIONS ============
 function showTab(tabId) {
-  // Hide all tabs
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  
-  // Show selected tab
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
   
-  // Update tab buttons
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.classList.remove('active');
-  });
-  
+  document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
   event.target.classList.add('active');
   
-  // Refresh data if needed
   if (tabId === 'data-tab') {
     updateDeviceStatusOnRambuTab();
   }
@@ -501,8 +491,8 @@ function loadConfig() {
   const config = localStorage.getItem('github_config');
   if (config) {
     const { user, repo, token } = JSON.parse(config);
-    GITHUB_USER = user || 'fahruldev';
-    GITHUB_REPO = repo || 'rambu-database';
+    GITHUB_USER = user || 'cvr-gpiodev';
+    GITHUB_REPO = repo || 'rambu-speeding';
     GITHUB_TOKEN = token || '';
   }
 }
@@ -522,13 +512,83 @@ function loadDevices() {
   const saved = localStorage.getItem('registered_devices');
   if (saved) {
     registeredDevices = JSON.parse(saved);
-    // Validasi ulang device yang ada
     registeredDevices.forEach(device => {
       device.lastSeen = validateDeviceTimestamp(device.lastSeen);
       device.lastUpdate = validateDeviceTimestamp(device.lastUpdate);
     });
   }
-  updateDeviceTable();
+  
+  // Load real status from GitHub
+  loadDeviceStatusFromGitHub();
+}
+
+async function loadDeviceStatusFromGitHub() {
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/device-status.json`
+    );
+    
+    if (response.ok) {
+      const statusData = await response.json();
+      
+      registeredDevices.forEach(device => {
+        if (statusData[device.id]) {
+          updateDeviceStatusFromGitHub(device, statusData[device.id]);
+        }
+      });
+      
+      saveDevices();
+      updateDeviceTable();
+    }
+  } catch (error) {
+    console.log('Device status file not found, using local data');
+  }
+}
+
+function updateDeviceStatusFromGitHub(device, gitHubStatus) {
+  if (!gitHubStatus.last_seen || gitHubStatus.last_seen === "never") {
+    device.connection = 'offline';
+    device.lastSeen = null;
+    device.message = 'Never connected';
+    return;
+  }
+  
+  const gitHubTime = new Date(gitHubStatus.last_seen);
+  const now = new Date();
+  
+  if (isNaN(gitHubTime.getTime())) {
+    device.connection = 'offline';
+    return;
+  }
+  
+  device.lastSeen = gitHubStatus.last_seen;
+  device.gitHubStatus = gitHubStatus;
+  
+  const timeDiff = now - gitHubTime;
+  
+  if (timeDiff > CONNECTION_TIMEOUT) {
+    device.connection = 'offline';
+    device.message = 'Last seen ' + Math.floor(timeDiff/1000) + ' seconds ago';
+  } else {
+    device.connection = 'online';
+    device.message = gitHubStatus.message || 'Device is online';
+  }
+  
+  if (gitHubStatus.status === 'online' || gitHubStatus.status === 'heartbeat') {
+    device.status = 'online';
+  } else if (gitHubStatus.status === 'data_loaded' || gitHubStatus.status === 'data_updated') {
+    device.status = 'updated';
+    device.lastUpdate = gitHubStatus.last_seen;
+    device.dataVersion = 1;
+    device.message = gitHubStatus.message || 'Data updated';
+  }
+  
+  device.gitHubData = {
+    rambu_count: gitHubStatus.rambu_count || 0,
+    ip: gitHubStatus.ip || 'Unknown',
+    rssi: gitHubStatus.rssi || 0,
+    uptime: gitHubStatus.uptime || 0
+  };
 }
 
 function saveDevices() {
@@ -537,18 +597,12 @@ function saveDevices() {
 
 function validateDeviceTimestamp(timestamp) {
   if (!timestamp) return null;
-  
   const date = new Date(timestamp);
-  if (isNaN(date.getTime())) {
-    return null;
-  }
-  return timestamp;
+  return isNaN(date.getTime()) ? null : timestamp;
 }
 
 function isValidDeviceId(deviceId) {
-  // Validasi format device ID: SPD-ALRTXXX
-  const pattern = /^SPD-ALRT\d{3}$/;
-  return pattern.test(deviceId);
+  return /^SPD-ALRT\d{3}$/.test(deviceId);
 }
 
 function addDevice() {
@@ -559,19 +613,16 @@ function addDevice() {
     return;
   }
   
-  // Validasi device ID
   if (!isValidDeviceId(deviceId)) {
     showNotify('Invalid Device ID format. Must be SPD-ALRTXXX', false);
     return;
   }
   
-  // Check if device already exists
   if (registeredDevices.some(device => device.id === deviceId)) {
     showNotify(`Device ${deviceId} already exists`, false);
     return;
   }
   
-  // Add new device
   const newDevice = {
     id: deviceId,
     status: 'waiting',
@@ -580,60 +631,48 @@ function addDevice() {
     lastUpdate: null,
     dataVersion: 0,
     added: new Date().toISOString(),
-    verified: true
+    verified: true,
+    gitHubData: null
   };
   
   registeredDevices.push(newDevice);
   saveDevices();
-  
-  // Clear form
   document.getElementById('deviceIdSelect').value = '';
   
   showNotify(`Device ${deviceId} registered successfully`);
   updateDeviceTable();
+  loadDeviceStatusFromGitHub();
 }
 
 async function updateDeviceStatus(deviceId, statusData) {
-  // Validasi device ID terlebih dahulu
   if (!isValidDeviceId(deviceId)) {
     console.error(`Invalid device ID: ${deviceId}`);
     return false;
   }
   
-  // Cari device dengan validasi yang ketat
   const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId && d.verified === true);
   if (deviceIndex === -1) {
     console.error(`Device ${deviceId} not registered or not verified`);
     return false;
   }
   
-  // Update status
   const now = new Date();
   const device = registeredDevices[deviceIndex];
   
-  // Verifikasi timestamp
   const receivedTime = statusData.timestamp ? new Date(statusData.timestamp) : now;
   if (isNaN(receivedTime.getTime())) {
     console.error(`Invalid timestamp for device ${deviceId}`);
     return false;
   }
   
-  // Update connection status
   device.connection = 'online';
   device.lastSeen = receivedTime.toISOString();
   
-  // Update device status
   if (statusData.status_type === 'data_updated') {
     device.status = 'updated';
     device.lastUpdate = receivedTime.toISOString();
-    
-    // Update version in GitHub
-    const newVersion = await updateVersionOnGitHub(deviceId);
-    if (newVersion) {
-      device.dataVersion = newVersion;
-      device.message = `Updated to v${newVersion}`;
-    }
-    
+    device.dataVersion = (device.dataVersion || 0) + 1;
+    device.message = statusData.message || 'Data updated';
   } else if (statusData.status_type === 'online') {
     device.status = 'online';
     device.lastUpdate = receivedTime.toISOString();
@@ -651,81 +690,9 @@ async function updateDeviceStatus(deviceId, statusData) {
 
 function checkConnectionTimeout(device) {
   if (!device.lastSeen) return true;
-  
   const lastSeen = new Date(device.lastSeen);
   const now = new Date();
-  const timeDiff = now - lastSeen;
-  
-  return timeDiff > CONNECTION_TIMEOUT;
-}
-
-async function updateVersionOnGitHub(deviceId) {
-  if (!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) {
-    console.log('GitHub configuration missing');
-    return null;
-  }
-  
-  try {
-    // Get current version
-    const versionResponse = await fetch(
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
-    );
-    
-    let currentVersion = 1;
-    if (versionResponse.ok) {
-      const versionText = await versionResponse.text();
-      currentVersion = parseInt(versionText.trim()) || 1;
-    }
-    
-    const newVersion = currentVersion + 1;
-    
-    // Get SHA of version file
-    const shaResponse = await fetch(
-      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
-      {
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      }
-    );
-    
-    if (!shaResponse.ok) {
-      throw new Error('Failed to get file SHA');
-    }
-    
-    const shaData = await shaResponse.json();
-    const sha = shaData.sha;
-    
-    // Update version file
-    const updateResponse = await fetch(
-      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Device ${deviceId} updated data - v${newVersion}`,
-          content: btoa(String(newVersion)),
-          sha: sha
-        })
-      }
-    );
-    
-    if (!updateResponse.ok) {
-      throw new Error('Failed to update version');
-    }
-    
-    console.log(`✅ Version updated to ${newVersion} for ${deviceId}`);
-    return newVersion;
-    
-  } catch (error) {
-    console.error('❌ Error updating version:', error);
-    return null;
-  }
+  return (now - lastSeen) > CONNECTION_TIMEOUT;
 }
 
 function updateDeviceTable() {
@@ -747,16 +714,13 @@ function updateDeviceTable() {
     const lastSeen = device.lastSeen ? new Date(device.lastSeen) : null;
     const lastUpdate = device.lastUpdate ? new Date(device.lastUpdate) : null;
     
-    // Check connection timeout (30 detik)
     const isTimeout = checkConnectionTimeout(device);
     
-    // Determine connection badge
     let connectionBadge = 'status-offline';
     let connectionText = 'Offline';
     
     if (lastSeen && !isTimeout) {
       const secondsAgo = Math.floor((now - lastSeen) / 1000);
-      
       if (secondsAgo < 30) {
         connectionBadge = 'status-online';
         connectionText = 'Online';
@@ -766,14 +730,12 @@ function updateDeviceTable() {
       }
     }
     
-    // Determine status badge
     let statusBadge = 'status-waiting';
     let statusText = 'Waiting';
     let lastUpdateText = 'Never';
     
     if (lastUpdate) {
       const updateMinutesAgo = Math.floor((now - lastUpdate) / 60000);
-      
       if (updateMinutesAgo < 5) {
         statusBadge = 'status-online';
         statusText = 'Updated';
@@ -787,17 +749,16 @@ function updateDeviceTable() {
       lastUpdateText = `${updateMinutesAgo} min ago`;
     }
     
-    // Add data version info
     const versionInfo = device.dataVersion > 0 ? `v${device.dataVersion}` : 'No data';
-    
-    // Add verification badge
-    const verifiedBadge = device.verified ? '✅' : '⚠️';
+    const gitHubInfo = device.gitHubData ? 
+      `<br><small style="color:#666;font-size:9px">📡 ${device.gitHubData.rambu_count || 0} rambu | 📶 ${device.gitHubData.rssi || 0}dBm</small>` : '';
     
     html += `
       <tr>
         <td>
           <strong>${device.id}</strong><br>
-          <small style="color:#666;font-size:10px">${versionInfo} ${verifiedBadge}</small>
+          <small style="color:#666;font-size:10px">${versionInfo} ✅</small>
+          ${gitHubInfo}
         </td>
         <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
         <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
@@ -806,6 +767,7 @@ function updateDeviceTable() {
           <small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/1000) + ' sec ago' : 'Never'}</small>
           ${device.message ? `<br><small style="color:#3b82f6;font-size:10px">${device.message}</small>` : ''}
           ${isTimeout ? `<br><small style="color:#ef4444;font-size:10px">Connection timeout</small>` : ''}
+          ${device.gitHubData && device.gitHubData.ip ? `<br><small style="color:#888;font-size:9px">IP: ${device.gitHubData.ip}</small>` : ''}
         </td>
         <td>
           <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
@@ -826,31 +788,14 @@ async function checkDeviceUpdate(deviceId) {
   }
   
   try {
-    const response = await fetch(
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
-    );
-    
-    if (response.ok) {
-      const versionText = await response.text();
-      const currentVersion = parseInt(versionText.trim()) || 1;
-      
-      const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
-      if (deviceIndex !== -1) {
-        const device = registeredDevices[deviceIndex];
-        
-        if (currentVersion > device.dataVersion) {
-          device.dataVersion = currentVersion;
-          device.status = 'updated';
-          device.lastUpdate = new Date().toISOString();
-          device.message = `Data v${currentVersion} available`;
-          
-          saveDevices();
-          updateDeviceTable();
-          
-          showNotify(`Device ${deviceId} has new data v${currentVersion}`);
-        } else {
-          showNotify(`Device ${deviceId} is up to date (v${currentVersion})`);
-        }
+    await loadDeviceStatusFromGitHub();
+    const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+    if (deviceIndex !== -1) {
+      const device = registeredDevices[deviceIndex];
+      if (device.gitHubData) {
+        showNotify(`Device ${deviceId} status loaded from GitHub`);
+      } else {
+        showNotify(`Device ${deviceId} has no status data on GitHub`);
       }
     }
   } catch (error) {
@@ -859,9 +804,8 @@ async function checkDeviceUpdate(deviceId) {
 }
 
 function checkAllDevicesUpdate() {
-  registeredDevices.forEach(device => {
-    checkDeviceUpdate(device.id);
-  });
+  loadDeviceStatusFromGitHub();
+  showNotify('Checking all devices status from GitHub');
 }
 
 function removeDevice(deviceId) {
@@ -874,39 +818,21 @@ function removeDevice(deviceId) {
 }
 
 function testDevice(deviceId) {
-  // Simulate test connection
   const mockData = {
     device_id: deviceId,
     status_type: 'heartbeat',
-    message: 'Test connection',
+    message: 'Test connection (MOCK)',
     timestamp: new Date().toISOString()
   };
   
   if (updateDeviceStatus(deviceId, mockData)) {
-    showNotify(`Test connection sent to ${deviceId}`);
+    showNotify(`Test connection sent to ${deviceId} (MOCK DATA)`);
   }
 }
 
 function refreshAllDevices() {
-  // Check for connection timeout
-  const now = new Date();
-  let updatedCount = 0;
-  
-  registeredDevices.forEach(device => {
-    if (device.lastSeen) {
-      const timeDiff = now - new Date(device.lastSeen);
-      
-      if (timeDiff > CONNECTION_TIMEOUT) {
-        device.connection = 'offline';
-        device.message = 'Connection timeout (30s)';
-        updatedCount++;
-      }
-    }
-  });
-  
-  saveDevices();
-  updateDeviceTable();
-  showNotify(`Refreshed ${updatedCount} devices`);
+  loadDeviceStatusFromGitHub();
+  showNotify('Refreshing all devices from GitHub');
 }
 
 function clearAllDevices() {
@@ -919,9 +845,8 @@ function clearAllDevices() {
 }
 
 function setupDeviceWebhookListener() {
-  // Check connection timeout setiap 10 detik
   setInterval(() => {
-    refreshAllDevices();
+    loadDeviceStatusFromGitHub();
   }, 10000);
 }
 
@@ -943,7 +868,6 @@ async function loadData(){
 }
 
 function updateDeviceStatusOnRambuTab() {
-  // Update device status in rambu tab if needed
   const onlineDevices = registeredDevices.filter(d => d.connection === 'online').length;
   const totalDevices = registeredDevices.length;
   
@@ -1580,19 +1504,6 @@ function showNotify(message, isSuccess = true) {
 
 // ============ API ENDPOINT FOR ESP32 ============
 window.receiveDeviceStatus = function(deviceId, statusType, message) {
-  // Validasi device ID format
-  if (!isValidDeviceId(deviceId)) {
-    console.error(`Invalid device ID format: ${deviceId}`);
-    return false;
-  }
-  
-  // Cari device yang terdaftar
-  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
-  if (deviceIndex === -1) {
-    console.error(`Device ${deviceId} not registered`);
-    return false;
-  }
-  
   const mockData = {
     device_id: deviceId,
     status_type: statusType,
@@ -1616,13 +1527,32 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup device monitoring
   setupDeviceWebhookListener();
   
-  // Auto-refresh device table setiap 5 detik
-  setInterval(updateDeviceTable, 5000);
-  
   // Load rambu data jika config ada
   if (GITHUB_USER && GITHUB_REPO) {
     loadData();
   }
+  
+  // Auto-add test device jika kosong
+  setTimeout(() => {
+    if (registeredDevices.length === 0) {
+      const testDevice = {
+        id: 'SPD-ALRT001',
+        status: 'waiting',
+        connection: 'offline',
+        lastSeen: null,
+        lastUpdate: null,
+        dataVersion: 0,
+        added: new Date().toISOString(),
+        verified: true,
+        gitHubData: null
+      };
+      
+      registeredDevices.push(testDevice);
+      saveDevices();
+      updateDeviceTable();
+      loadDeviceStatusFromGitHub();
+    }
+  }, 2000);
 });
   </script>
 </body>
