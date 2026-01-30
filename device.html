@@ -1,4 +1,4 @@
-<!doctype html>
+Q<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
@@ -227,6 +227,40 @@
       color: #888;
       margin-top: 2px;
     }
+    
+    /* ============ CONFIG SECTION ============ */
+    .config-card {
+      background: #1a1d24;
+      border: 1px solid #2a2d35;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .config-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #3b82f6;
+    }
+    
+    .config-input {
+      background: #0f1115;
+      border: 1px solid #2a2d35;
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      margin-bottom: 8px;
+      font-family: monospace;
+    }
+    
+    .config-help {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
   </style>
 </head>
 
@@ -237,6 +271,29 @@
   </div>
   
   <h2>📡 DEVICE MONITORING</h2>
+  
+  <!-- GITHUB CONFIGURATION -->
+  <div class="config-card">
+    <div class="config-title">🔧 GitHub Configuration</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+      <div>
+        <input type="text" id="githubUser" class="config-input" placeholder="GitHub Username" value="fahruldev">
+        <div class="config-help">Your GitHub username</div>
+      </div>
+      <div>
+        <input type="text" id="githubRepo" class="config-input" placeholder="Repository Name" value="rambu-database">
+        <div class="config-help">Repository name</div>
+      </div>
+    </div>
+    <div>
+      <input type="password" id="githubToken" class="config-input" placeholder="GitHub Personal Access Token">
+      <div class="config-help">Get token from GitHub Settings → Developer Settings</div>
+    </div>
+    <div style="margin-top: 8px; display: flex; gap: 8px;">
+      <button onclick="saveGitHubConfig()" class="btn btn-success">💾 Save Config</button>
+      <button onclick="testGitHubConnection()" class="btn">🔗 Test Connection</button>
+    </div>
+  </div>
   
   <!-- ADD DEVICE FORM -->
   <div class="card">
@@ -279,6 +336,7 @@
       <div>
         <button onclick="refreshAllDevices()" class="btn">🔄 Refresh All</button>
         <button onclick="clearAllDevices()" class="btn btn-danger">🗑️ Clear All</button>
+        <button onclick="checkAllDevicesUpdate()" class="btn">📡 Check Updates</button>
       </div>
     </div>
     
@@ -308,8 +366,143 @@
   <div id="notify" class="notify"></div>
 
   <script>
+// ============ KONFIGURASI GITHUB ============
+let GITHUB_USER = 'cvr-gpiodev';
+let GITHUB_REPO = 'rambu-speeding';
+let GITHUB_TOKEN = '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';
+const GITHUB_API = 'https://api.github.com';
+
 // ============ VARIABLES ============
 let registeredDevices = [];
+
+// ============ LOAD CONFIGURATION ============
+function loadConfig() {
+  const config = localStorage.getItem('github_config');
+  if (config) {
+    const { user, repo, token } = JSON.parse(config);
+    GITHUB_USER = user || '';
+    GITHUB_REPO = repo || '';
+    GITHUB_TOKEN = token || '';
+    
+    // Update input fields
+    document.getElementById('githubUser').value = GITHUB_USER;
+    document.getElementById('githubRepo').value = GITHUB_REPO;
+    document.getElementById('githubToken').value = GITHUB_TOKEN;
+  }
+}
+
+function saveGitHubConfig() {
+  const user = document.getElementById('githubUser').value.trim();
+  const repo = document.getElementById('githubRepo').value.trim();
+  const token = document.getElementById('githubToken').value.trim();
+  
+  if (!user || !repo) {
+    showNotify('GitHub Username and Repository are required', false);
+    return;
+  }
+  
+  GITHUB_USER = user;
+  GITHUB_REPO = repo;
+  GITHUB_TOKEN = token;
+  
+  const config = { user, repo, token };
+  localStorage.setItem('github_config', JSON.stringify(config));
+  
+  showNotify('GitHub configuration saved successfully');
+}
+
+async function testGitHubConnection() {
+  if (!GITHUB_USER || !GITHUB_REPO) {
+    showNotify('Please save configuration first', false);
+    return;
+  }
+  
+  try {
+    // Test connection to version file
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    if (response.ok) {
+      const version = await response.text();
+      showNotify(`✅ Connected! Current version: ${version.trim()}`);
+    } else {
+      showNotify('❌ Cannot connect to repository. Check your configuration.', false);
+    }
+  } catch (error) {
+    showNotify(`❌ Connection failed: ${error.message}`, false);
+  }
+}
+
+// ============ FUNGSI UNTUK UPDATE VERSION DI GITHUB ============
+async function updateVersionOnGitHub(deviceId) {
+  if (!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) {
+    console.log('GitHub configuration missing');
+    return null;
+  }
+  
+  try {
+    // Get current version
+    const versionResponse = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    let currentVersion = 1;
+    if (versionResponse.ok) {
+      const versionText = await versionResponse.text();
+      currentVersion = parseInt(versionText.trim()) || 1;
+    }
+    
+    const newVersion = currentVersion + 1;
+    
+    // Get SHA of version file
+    const shaResponse = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    
+    if (!shaResponse.ok) {
+      throw new Error('Failed to get file SHA');
+    }
+    
+    const shaData = await shaResponse.json();
+    const sha = shaData.sha;
+    
+    // Update version file
+    const updateResponse = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Device ${deviceId} updated data - v${newVersion}`,
+          content: btoa(String(newVersion)),
+          sha: sha
+        })
+      }
+    );
+    
+    if (!updateResponse.ok) {
+      throw new Error('Failed to update version');
+    }
+    
+    console.log(`✅ Version updated to ${newVersion} for ${deviceId}`);
+    return newVersion;
+    
+  } catch (error) {
+    console.error('❌ Error updating version:', error);
+    return null;
+  }
+}
 
 // ============ LOAD SAVED DEVICES ============
 function loadDevices() {
@@ -347,6 +540,7 @@ function addDevice() {
     connection: 'offline',
     lastSeen: null,
     lastUpdate: null,
+    dataVersion: 0,
     added: new Date().toISOString()
   };
   
@@ -361,7 +555,7 @@ function addDevice() {
 }
 
 // ============ UPDATE DEVICE STATUS ============
-function updateDeviceStatus(deviceId, statusData) {
+async function updateDeviceStatus(deviceId, statusData) {
   // Find device
   const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
   if (deviceIndex === -1) {
@@ -381,9 +575,20 @@ function updateDeviceStatus(deviceId, statusData) {
   if (statusData.status_type === 'data_updated') {
     device.status = 'updated';
     device.lastUpdate = now.toISOString();
+    
+    // Update version in GitHub
+    const newVersion = await updateVersionOnGitHub(deviceId);
+    if (newVersion) {
+      device.dataVersion = newVersion;
+      device.message = `Updated to v${newVersion}`;
+    }
+    
   } else if (statusData.status_type === 'online') {
     device.status = 'updated';
     device.lastUpdate = now.toISOString();
+    device.message = statusData.message || 'Device online';
+  } else {
+    device.message = statusData.message || 'Status update';
   }
   
   saveDevices();
@@ -391,6 +596,52 @@ function updateDeviceStatus(deviceId, statusData) {
   
   console.log(`Status updated for ${deviceId}`);
   return true;
+}
+
+// ============ CHECK FOR UPDATES ============
+async function checkDeviceUpdate(deviceId) {
+  if (!GITHUB_USER || !GITHUB_REPO) {
+    showNotify('GitHub configuration required', false);
+    return;
+  }
+  
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    if (response.ok) {
+      const versionText = await response.text();
+      const currentVersion = parseInt(versionText.trim()) || 1;
+      
+      const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+      if (deviceIndex !== -1) {
+        const device = registeredDevices[deviceIndex];
+        
+        if (currentVersion > device.dataVersion) {
+          device.dataVersion = currentVersion;
+          device.status = 'updated';
+          device.lastUpdate = new Date().toISOString();
+          device.message = `Data v${currentVersion} available`;
+          
+          saveDevices();
+          updateDeviceTable();
+          
+          showNotify(`Device ${deviceId} has new data v${currentVersion}`);
+        } else {
+          showNotify(`Device ${deviceId} is up to date (v${currentVersion})`);
+        }
+      }
+    }
+  } catch (error) {
+    showNotify(`Failed to check updates: ${error.message}`, false);
+  }
+}
+
+function checkAllDevicesUpdate() {
+  registeredDevices.forEach(device => {
+    checkDeviceUpdate(device.id);
+  });
 }
 
 // ============ UPDATE DEVICE TABLE ============
@@ -444,14 +695,25 @@ function updateDeviceTable() {
       lastUpdateText = `${updateMinutesAgo} min ago`;
     }
     
+    // Add data version info
+    const versionInfo = device.dataVersion > 0 ? `v${device.dataVersion}` : 'No data';
+    
     html += `
       <tr>
-        <td><strong>${device.id}</strong></td>
+        <td>
+          <strong>${device.id}</strong><br>
+          <small style="color:#666;font-size:10px">${versionInfo}</small>
+        </td>
         <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
         <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
-        <td>${lastUpdateText}<br><small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small></td>
+        <td>
+          ${lastUpdateText}<br>
+          <small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small>
+          ${device.message ? `<br><small style="color:#3b82f6;font-size:10px">${device.message}</small>` : ''}
+        </td>
         <td>
           <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
+          <button onclick="checkDeviceUpdate('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Check Update</button>
           <button onclick="removeDevice('${device.id}')" class="btn btn-danger" style="padding:4px 8px;font-size:11px">Remove</button>
         </td>
       </tr>
@@ -530,7 +792,7 @@ function simulateIncomingStatus() {
   const mockData = {
     device_id: randomDevice.id,
     status_type: statusType,
-    message: statusType === 'data_updated' ? 'Data updated' : 'Status update',
+    message: statusType === 'data_updated' ? 'Data updated to v' + (Math.floor(Math.random() * 5) + 1) : 'Status update',
     timestamp: new Date().toISOString()
   };
   
@@ -575,7 +837,10 @@ function showNotify(message, isSuccess = true) {
 
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {
+  // Load configurations
+  loadConfig();
   loadDevices();
+  
   setupWebhookListener();
   
   // Auto-refresh table every 5 seconds
@@ -589,6 +854,8 @@ document.addEventListener('DOMContentLoaded', function() {
       connection: 'online',
       lastSeen: new Date().toISOString(),
       lastUpdate: new Date().toISOString(),
+      dataVersion: 1,
+      message: 'Test device',
       added: new Date().toISOString()
     };
     
@@ -599,7 +866,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============ GLOBAL FUNCTIONS FOR ESP32 TO CALL ============
-// ESP32 can call these via JavaScript injection or POST request
 window.receiveDeviceStatus = function(deviceId, statusType, message) {
   const mockData = {
     device_id: deviceId,
