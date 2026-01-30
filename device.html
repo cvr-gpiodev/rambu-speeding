@@ -1,0 +1,621 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SPEEDING ALERT - Device Monitoring</title>  
+  <style>  
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0c0d10;
+      color: #eee;
+      margin: 14px;
+      font-size: 14px;
+    }
+    
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #3b82f6;
+    }
+    
+    /* ============ NAVIGATION ============ */
+    .nav-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2a2d35;
+    }
+    
+    .nav-button {
+      background: #1a1d24;
+      color: #ccc;
+      border: 1px solid #2a2d35;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .nav-button:hover {
+      background: #2a2d35;
+    }
+    
+    .nav-button.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    
+    /* ============ CARD STYLES ============ */
+    .card {
+      background: #15161a;
+      border: 1px solid #2a2d35;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2a2d35;
+    }
+    
+    /* ============ BUTTON STYLES ============ */
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover {
+      background: #2563eb;
+    }
+    
+    .btn-success {
+      background: #22c55e;
+    }
+    
+    .btn-success:hover {
+      background: #16a34a;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    /* ============ TABLE STYLES ============ */
+    .table-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #2a2d35;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    
+    th, td {
+      border: 1px solid #2a2d35;
+      padding: 8px;
+      text-align: left;
+    }
+    
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #15161a;
+      z-index: 10;
+      border-bottom: 2px solid #2a2d35;
+      font-weight: 600;
+    }
+    
+    tbody tr:hover {
+      background: #1a1d24;
+    }
+    
+    /* ============ STATUS BADGES ============ */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      min-width: 70px;
+    }
+    
+    .status-online {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid #22c55e;
+    }
+    
+    .status-offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+    
+    .status-waiting {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid #f59e0b;
+    }
+    
+    /* ============ DEVICE FORM ============ */
+    .device-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #1a1d24;
+      border-radius: 6px;
+      border: 1px solid #2a2d35;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .form-label {
+      font-size: 12px;
+      color: #aaa;
+    }
+    
+    .form-select {
+      background: #0f1115;
+      border: 1px solid #2a2d35;
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+    }
+    
+    /* ============ DEVICE LIST ============ */
+    .device-list-empty {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
+    }
+    
+    /* ============ NOTIFICATION ============ */
+    .notify {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      background: #22c55e;
+      color: white;
+      border-radius: 6px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .notify.error {
+      background: #ef4444;
+    }
+    
+    .last-seen {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+
+<body>  
+  <div class="nav-container">
+    <a href="index.html" class="nav-button">📊 Data Rambu</a>
+    <a href="devices.html" class="nav-button active">📡 Device Monitor</a>
+  </div>
+  
+  <h2>📡 DEVICE MONITORING</h2>
+  
+  <!-- ADD DEVICE FORM -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin:0">➕ Add New Device</h3>
+    </div>
+    
+    <div class="device-form">
+      <div class="form-group">
+        <label class="form-label">Device ID</label>
+        <select id="deviceIdSelect" class="form-select">
+          <option value="">Select Device ID</option>
+          <option value="SPD-ALRT001">SPD-ALRT001</option>
+          <option value="SPD-ALRT002">SPD-ALRT002</option>
+          <option value="SPD-ALRT003">SPD-ALRT003</option>
+          <option value="SPD-ALRT004">SPD-ALRT004</option>
+          <option value="SPD-ALRT005">SPD-ALRT005</option>
+          <option value="SPD-ALRT006">SPD-ALRT006</option>
+          <option value="SPD-ALRT007">SPD-ALRT007</option>
+          <option value="SPD-ALRT008">SPD-ALRT008</option>
+          <option value="SPD-ALRT009">SPD-ALRT009</option>
+          <option value="SPD-ALRT010">SPD-ALRT010</option>
+        </select>
+      </div>
+      
+      <div class="form-group" style="align-self: flex-end;">
+        <button onclick="addDevice()" class="btn btn-success">➕ Add Device</button>
+      </div>
+    </div>
+    
+    <div style="font-size:11px;color:#666;margin-top:8px">
+      <strong>Note:</strong> Device must be registered here before ESP32 can send status.
+    </div>
+  </div>
+  
+  <!-- DEVICE TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin:0">📋 Registered Devices</h3>
+      <div>
+        <button onclick="refreshAllDevices()" class="btn">🔄 Refresh All</button>
+        <button onclick="clearAllDevices()" class="btn btn-danger">🗑️ Clear All</button>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th width="25%">Device</th>
+            <th width="20%">Status</th>
+            <th width="20%">Connection</th>
+            <th width="25%">Last Updated</th>
+            <th width="10%">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTableBody">
+          <!-- Devices will appear here -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="emptyMessage" class="device-list-empty" style="display:none">
+      No devices registered. Add devices using the form above.
+    </div>
+  </div>
+  
+  <!-- NOTIFICATION -->
+  <div id="notify" class="notify"></div>
+
+  <script>
+// ============ VARIABLES ============
+let registeredDevices = [];
+
+// ============ LOAD SAVED DEVICES ============
+function loadDevices() {
+  const saved = localStorage.getItem('registered_devices');
+  if (saved) {
+    registeredDevices = JSON.parse(saved);
+  }
+  updateDeviceTable();
+}
+
+// ============ SAVE DEVICES ============
+function saveDevices() {
+  localStorage.setItem('registered_devices', JSON.stringify(registeredDevices));
+}
+
+// ============ ADD NEW DEVICE ============
+function addDevice() {
+  const deviceId = document.getElementById('deviceIdSelect').value;
+  
+  if (!deviceId) {
+    showNotify('Please select a Device ID', false);
+    return;
+  }
+  
+  // Check if device already exists
+  if (registeredDevices.some(device => device.id === deviceId)) {
+    showNotify(`Device ${deviceId} already exists`, false);
+    return;
+  }
+  
+  // Add new device
+  const newDevice = {
+    id: deviceId,
+    status: 'waiting',
+    connection: 'offline',
+    lastSeen: null,
+    lastUpdate: null,
+    added: new Date().toISOString()
+  };
+  
+  registeredDevices.push(newDevice);
+  saveDevices();
+  
+  // Clear form
+  document.getElementById('deviceIdSelect').value = '';
+  
+  showNotify(`Device ${deviceId} registered successfully`);
+  updateDeviceTable();
+}
+
+// ============ UPDATE DEVICE STATUS ============
+function updateDeviceStatus(deviceId, statusData) {
+  // Find device
+  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+  if (deviceIndex === -1) {
+    console.log(`Device ${deviceId} not registered`);
+    return false;
+  }
+  
+  // Update status
+  const now = new Date();
+  const device = registeredDevices[deviceIndex];
+  
+  // Update connection status (online/offline)
+  device.connection = 'online';
+  device.lastSeen = now.toISOString();
+  
+  // Update device status (updated/waiting)
+  if (statusData.status_type === 'data_updated') {
+    device.status = 'updated';
+    device.lastUpdate = now.toISOString();
+  } else if (statusData.status_type === 'online') {
+    device.status = 'updated';
+    device.lastUpdate = now.toISOString();
+  }
+  
+  saveDevices();
+  updateDeviceTable();
+  
+  console.log(`Status updated for ${deviceId}`);
+  return true;
+}
+
+// ============ UPDATE DEVICE TABLE ============
+function updateDeviceTable() {
+  const tbody = document.getElementById('deviceTableBody');
+  const emptyMsg = document.getElementById('emptyMessage');
+  
+  if (registeredDevices.length === 0) {
+    tbody.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  
+  emptyMsg.style.display = 'none';
+  
+  let html = '';
+  const now = new Date();
+  
+  registeredDevices.forEach(device => {
+    const lastSeen = device.lastSeen ? new Date(device.lastSeen) : null;
+    const lastUpdate = device.lastUpdate ? new Date(device.lastUpdate) : null;
+    
+    // Determine connection badge
+    let connectionBadge = 'status-offline';
+    let connectionText = 'Offline';
+    
+    if (lastSeen) {
+      const minutesAgo = Math.floor((now - lastSeen) / 60000);
+      
+      if (minutesAgo < 3) {
+        connectionBadge = 'status-online';
+        connectionText = 'Online';
+      } else if (minutesAgo < 10) {
+        connectionBadge = 'status-waiting';
+        connectionText = 'Waiting';
+      }
+    }
+    
+    // Determine status badge
+    let statusBadge = 'status-waiting';
+    let statusText = 'Waiting';
+    let lastUpdateText = 'Never';
+    
+    if (lastUpdate) {
+      const updateMinutesAgo = Math.floor((now - lastUpdate) / 60000);
+      
+      if (updateMinutesAgo < 5) {
+        statusBadge = 'status-online';
+        statusText = 'Updated';
+      }
+      lastUpdateText = `${updateMinutesAgo} min ago`;
+    }
+    
+    html += `
+      <tr>
+        <td><strong>${device.id}</strong></td>
+        <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
+        <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
+        <td>${lastUpdateText}<br><small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small></td>
+        <td>
+          <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
+          <button onclick="removeDevice('${device.id}')" class="btn btn-danger" style="padding:4px 8px;font-size:11px">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  tbody.innerHTML = html;
+}
+
+// ============ REMOVE DEVICE ============
+function removeDevice(deviceId) {
+  if (confirm(`Remove device ${deviceId} from monitoring?`)) {
+    registeredDevices = registeredDevices.filter(d => d.id !== deviceId);
+    saveDevices();
+    updateDeviceTable();
+    showNotify(`Device ${deviceId} removed`);
+  }
+}
+
+// ============ TEST DEVICE ============
+function testDevice(deviceId) {
+  // Simulate test connection
+  const mockData = {
+    device_id: deviceId,
+    status_type: 'heartbeat',
+    message: 'Test connection',
+    timestamp: new Date().toISOString()
+  };
+  
+  if (updateDeviceStatus(deviceId, mockData)) {
+    showNotify(`Test connection sent to ${deviceId}`);
+  }
+}
+
+// ============ REFRESH ALL DEVICES ============
+function refreshAllDevices() {
+  // Check for stale devices
+  const now = new Date();
+  let updatedCount = 0;
+  
+  registeredDevices.forEach(device => {
+    if (device.lastSeen) {
+      const minutesAgo = Math.floor((now - new Date(device.lastSeen)) / 60000);
+      
+      if (minutesAgo > 10) {
+        device.connection = 'offline';
+        updatedCount++;
+      }
+    }
+  });
+  
+  saveDevices();
+  updateDeviceTable();
+  showNotify(`Refreshed ${updatedCount} devices`);
+}
+
+// ============ CLEAR ALL DEVICES ============
+function clearAllDevices() {
+  if (confirm('Clear all registered devices? This cannot be undone.')) {
+    registeredDevices = [];
+    saveDevices();
+    updateDeviceTable();
+    showNotify('All devices cleared');
+  }
+}
+
+// ============ SIMULATE INCOMING STATUS ============
+function simulateIncomingStatus() {
+  if (registeredDevices.length === 0) return;
+  
+  // Pick random device
+  const randomDevice = registeredDevices[Math.floor(Math.random() * registeredDevices.length)];
+  const statusTypes = ['heartbeat', 'data_updated', 'online'];
+  const statusType = statusTypes[Math.floor(Math.random() * statusTypes.length)];
+  
+  const mockData = {
+    device_id: randomDevice.id,
+    status_type: statusType,
+    message: statusType === 'data_updated' ? 'Data updated' : 'Status update',
+    timestamp: new Date().toISOString()
+  };
+  
+  updateDeviceStatus(randomDevice.id, mockData);
+}
+
+// ============ WEBHOOK HANDLER (Simulation) ============
+function setupWebhookListener() {
+  // Simulate incoming status every 30 seconds
+  setInterval(() => {
+    if (registeredDevices.length > 0 && Math.random() > 0.7) {
+      simulateIncomingStatus();
+    }
+  }, 30000);
+}
+
+// ============ MANUAL STATUS UPDATE (for testing) ============
+function manualStatusUpdate(deviceId, statusType) {
+  const mockData = {
+    device_id: deviceId,
+    status_type: statusType,
+    message: 'Manual update',
+    timestamp: new Date().toISOString()
+  };
+  
+  if (updateDeviceStatus(deviceId, mockData)) {
+    showNotify(`Manual ${statusType} update for ${deviceId}`);
+  }
+}
+
+// ============ NOTIFICATION ============
+function showNotify(message, isSuccess = true) {
+  const notify = document.getElementById('notify');
+  notify.textContent = message;
+  notify.className = isSuccess ? 'notify' : 'notify error';
+  notify.style.display = 'block';
+  
+  setTimeout(() => {
+    notify.style.display = 'none';
+  }, 3000);
+}
+
+// ============ INITIALIZATION ============
+document.addEventListener('DOMContentLoaded', function() {
+  loadDevices();
+  setupWebhookListener();
+  
+  // Auto-refresh table every 5 seconds
+  setInterval(updateDeviceTable, 5000);
+  
+  // Add test device if empty
+  if (registeredDevices.length === 0) {
+    const testDevice = {
+      id: 'SPD-ALRT001',
+      status: 'updated',
+      connection: 'online',
+      lastSeen: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
+      added: new Date().toISOString()
+    };
+    
+    registeredDevices.push(testDevice);
+    saveDevices();
+    updateDeviceTable();
+  }
+});
+
+// ============ GLOBAL FUNCTIONS FOR ESP32 TO CALL ============
+// ESP32 can call these via JavaScript injection or POST request
+window.receiveDeviceStatus = function(deviceId, statusType, message) {
+  const mockData = {
+    device_id: deviceId,
+    status_type: statusType,
+    message: message,
+    timestamp: new Date().toISOString()
+  };
+  
+  return updateDeviceStatus(deviceId, mockData);
+};
+
+window.getRegisteredDevices = function() {
+  return registeredDevices.map(d => d.id);
+};
+
+// Example: ESP32 can call: receiveDeviceStatus('SPD-ALRT001', 'online', 'Device connected')
+  </script>
+</body>
+</html>
