@@ -325,6 +325,13 @@
       color: #666;
       font-style: italic;
     }
+    
+    /* ============ CONFIG LOADER ============ */
+    .config-loader {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
   </style>
 </head>
 
@@ -375,28 +382,9 @@
   <div id="device-tab" class="tab-content">
     <h2>📡 DEVICE MONITORING</h2>
     
-    <!-- GITHUB CONFIGURATION -->
-    <div class="config-section">
-      <div class="config-title">🔧 GitHub Configuration</div>
-      <div class="config-grid">
-        <div class="form-group">
-          <label class="form-label">GitHub Username</label>
-          <input type="text" id="githubUser" class="form-input" placeholder="fahruldev">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Repository Name</label>
-          <input type="text" id="githubRepo" class="form-input" placeholder="rambu-database">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">GitHub Personal Access Token</label>
-        <input type="password" id="githubToken" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-        <div class="config-help">Get token from GitHub Settings → Developer Settings → Personal access tokens</div>
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: 8px;">
-        <button onclick="saveGitHubConfig()" class="btn btn-success">💾 Save Config</button>
-        <button onclick="testGitHubConnection()" class="btn">🔗 Test Connection</button>
-      </div>
+    <!-- CONFIG LOADER (Tersembunyi) -->
+    <div id="config-loader" class="config-loader" style="display:none">
+      Loading GitHub configuration...
     </div>
     
     <!-- ADD DEVICE FORM -->
@@ -482,6 +470,9 @@ let rambuData = [];
 let currentActiveRow = -1;
 let registeredDevices = [];
 
+// ============ TIMEOUT CONFIG ============
+const CONNECTION_TIMEOUT = 30000; // 30 detik
+
 // ============ TAB FUNCTIONS ============
 function showTab(tabId) {
   // Hide all tabs
@@ -510,58 +501,20 @@ function loadConfig() {
   const config = localStorage.getItem('github_config');
   if (config) {
     const { user, repo, token } = JSON.parse(config);
-    GITHUB_USER = user || '';
-    GITHUB_REPO = repo || '';
+    GITHUB_USER = user || 'fahruldev';
+    GITHUB_REPO = repo || 'rambu-database';
     GITHUB_TOKEN = token || '';
-    
-    // Update input fields
-    document.getElementById('githubUser').value = GITHUB_USER;
-    document.getElementById('githubRepo').value = GITHUB_REPO;
-    document.getElementById('githubToken').value = GITHUB_TOKEN;
   }
 }
 
-function saveGitHubConfig() {
-  const user = document.getElementById('githubUser').value.trim();
-  const repo = document.getElementById('githubRepo').value.trim();
-  const token = document.getElementById('githubToken').value.trim();
+function saveGitHubConfig(user, repo, token) {
+  GITHUB_USER = user || GITHUB_USER;
+  GITHUB_REPO = repo || GITHUB_REPO;
+  GITHUB_TOKEN = token || GITHUB_TOKEN;
   
-  if (!user || !repo) {
-    showNotify('GitHub Username and Repository are required', false);
-    return;
-  }
-  
-  GITHUB_USER = user;
-  GITHUB_REPO = repo;
-  GITHUB_TOKEN = token;
-  
-  const config = { user, repo, token };
+  const config = { user: GITHUB_USER, repo: GITHUB_REPO, token: GITHUB_TOKEN };
   localStorage.setItem('github_config', JSON.stringify(config));
-  
-  showNotify('GitHub configuration saved successfully');
-}
-
-async function testGitHubConnection() {
-  if (!GITHUB_USER || !GITHUB_REPO) {
-    showNotify('Please save configuration first', false);
-    return;
-  }
-  
-  try {
-    // Test connection to version file
-    const response = await fetch(
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
-    );
-    
-    if (response.ok) {
-      const version = await response.text();
-      showNotify(`✅ Connected! Current version: ${version.trim()}`);
-    } else {
-      showNotify('❌ Cannot connect to repository. Check your configuration.', false);
-    }
-  } catch (error) {
-    showNotify(`❌ Connection failed: ${error.message}`, false);
-  }
+  console.log('GitHub configuration saved');
 }
 
 // ============ DEVICE MONITORING FUNCTIONS ============
@@ -569,6 +522,11 @@ function loadDevices() {
   const saved = localStorage.getItem('registered_devices');
   if (saved) {
     registeredDevices = JSON.parse(saved);
+    // Validasi ulang device yang ada
+    registeredDevices.forEach(device => {
+      device.lastSeen = validateDeviceTimestamp(device.lastSeen);
+      device.lastUpdate = validateDeviceTimestamp(device.lastUpdate);
+    });
   }
   updateDeviceTable();
 }
@@ -577,11 +535,33 @@ function saveDevices() {
   localStorage.setItem('registered_devices', JSON.stringify(registeredDevices));
 }
 
+function validateDeviceTimestamp(timestamp) {
+  if (!timestamp) return null;
+  
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) {
+    return null;
+  }
+  return timestamp;
+}
+
+function isValidDeviceId(deviceId) {
+  // Validasi format device ID: SPD-ALRTXXX
+  const pattern = /^SPD-ALRT\d{3}$/;
+  return pattern.test(deviceId);
+}
+
 function addDevice() {
   const deviceId = document.getElementById('deviceIdSelect').value;
   
   if (!deviceId) {
     showNotify('Please select a Device ID', false);
+    return;
+  }
+  
+  // Validasi device ID
+  if (!isValidDeviceId(deviceId)) {
+    showNotify('Invalid Device ID format. Must be SPD-ALRTXXX', false);
     return;
   }
   
@@ -599,7 +579,8 @@ function addDevice() {
     lastSeen: null,
     lastUpdate: null,
     dataVersion: 0,
-    added: new Date().toISOString()
+    added: new Date().toISOString(),
+    verified: true
   };
   
   registeredDevices.push(newDevice);
@@ -613,10 +594,16 @@ function addDevice() {
 }
 
 async function updateDeviceStatus(deviceId, statusData) {
-  // Find device
-  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+  // Validasi device ID terlebih dahulu
+  if (!isValidDeviceId(deviceId)) {
+    console.error(`Invalid device ID: ${deviceId}`);
+    return false;
+  }
+  
+  // Cari device dengan validasi yang ketat
+  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId && d.verified === true);
   if (deviceIndex === -1) {
-    console.log(`Device ${deviceId} not registered`);
+    console.error(`Device ${deviceId} not registered or not verified`);
     return false;
   }
   
@@ -624,14 +611,21 @@ async function updateDeviceStatus(deviceId, statusData) {
   const now = new Date();
   const device = registeredDevices[deviceIndex];
   
+  // Verifikasi timestamp
+  const receivedTime = statusData.timestamp ? new Date(statusData.timestamp) : now;
+  if (isNaN(receivedTime.getTime())) {
+    console.error(`Invalid timestamp for device ${deviceId}`);
+    return false;
+  }
+  
   // Update connection status
   device.connection = 'online';
-  device.lastSeen = now.toISOString();
+  device.lastSeen = receivedTime.toISOString();
   
   // Update device status
   if (statusData.status_type === 'data_updated') {
     device.status = 'updated';
-    device.lastUpdate = now.toISOString();
+    device.lastUpdate = receivedTime.toISOString();
     
     // Update version in GitHub
     const newVersion = await updateVersionOnGitHub(deviceId);
@@ -641,8 +635,8 @@ async function updateDeviceStatus(deviceId, statusData) {
     }
     
   } else if (statusData.status_type === 'online') {
-    device.status = 'updated';
-    device.lastUpdate = now.toISOString();
+    device.status = 'online';
+    device.lastUpdate = receivedTime.toISOString();
     device.message = statusData.message || 'Device online';
   } else {
     device.message = statusData.message || 'Status update';
@@ -653,6 +647,16 @@ async function updateDeviceStatus(deviceId, statusData) {
   
   console.log(`Status updated for ${deviceId}`);
   return true;
+}
+
+function checkConnectionTimeout(device) {
+  if (!device.lastSeen) return true;
+  
+  const lastSeen = new Date(device.lastSeen);
+  const now = new Date();
+  const timeDiff = now - lastSeen;
+  
+  return timeDiff > CONNECTION_TIMEOUT;
 }
 
 async function updateVersionOnGitHub(deviceId) {
@@ -743,19 +747,22 @@ function updateDeviceTable() {
     const lastSeen = device.lastSeen ? new Date(device.lastSeen) : null;
     const lastUpdate = device.lastUpdate ? new Date(device.lastUpdate) : null;
     
+    // Check connection timeout (30 detik)
+    const isTimeout = checkConnectionTimeout(device);
+    
     // Determine connection badge
     let connectionBadge = 'status-offline';
     let connectionText = 'Offline';
     
-    if (lastSeen) {
-      const minutesAgo = Math.floor((now - lastSeen) / 60000);
+    if (lastSeen && !isTimeout) {
+      const secondsAgo = Math.floor((now - lastSeen) / 1000);
       
-      if (minutesAgo < 3) {
+      if (secondsAgo < 30) {
         connectionBadge = 'status-online';
         connectionText = 'Online';
-      } else if (minutesAgo < 10) {
-        connectionBadge = 'status-waiting';
-        connectionText = 'Waiting';
+      } else {
+        connectionBadge = 'status-offline';
+        connectionText = 'Offline';
       }
     }
     
@@ -770,6 +777,12 @@ function updateDeviceTable() {
       if (updateMinutesAgo < 5) {
         statusBadge = 'status-online';
         statusText = 'Updated';
+      } else if (updateMinutesAgo < 10) {
+        statusBadge = 'status-waiting';
+        statusText = 'Pending';
+      } else {
+        statusBadge = 'status-offline';
+        statusText = 'Stale';
       }
       lastUpdateText = `${updateMinutesAgo} min ago`;
     }
@@ -777,18 +790,22 @@ function updateDeviceTable() {
     // Add data version info
     const versionInfo = device.dataVersion > 0 ? `v${device.dataVersion}` : 'No data';
     
+    // Add verification badge
+    const verifiedBadge = device.verified ? '✅' : '⚠️';
+    
     html += `
       <tr>
         <td>
           <strong>${device.id}</strong><br>
-          <small style="color:#666;font-size:10px">${versionInfo}</small>
+          <small style="color:#666;font-size:10px">${versionInfo} ${verifiedBadge}</small>
         </td>
         <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
         <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
         <td>
           ${lastUpdateText}<br>
-          <small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small>
+          <small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/1000) + ' sec ago' : 'Never'}</small>
           ${device.message ? `<br><small style="color:#3b82f6;font-size:10px">${device.message}</small>` : ''}
+          ${isTimeout ? `<br><small style="color:#ef4444;font-size:10px">Connection timeout</small>` : ''}
         </td>
         <td>
           <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
@@ -871,16 +888,17 @@ function testDevice(deviceId) {
 }
 
 function refreshAllDevices() {
-  // Check for stale devices
+  // Check for connection timeout
   const now = new Date();
   let updatedCount = 0;
   
   registeredDevices.forEach(device => {
     if (device.lastSeen) {
-      const minutesAgo = Math.floor((now - new Date(device.lastSeen)) / 60000);
+      const timeDiff = now - new Date(device.lastSeen);
       
-      if (minutesAgo > 10) {
+      if (timeDiff > CONNECTION_TIMEOUT) {
         device.connection = 'offline';
+        device.message = 'Connection timeout (30s)';
         updatedCount++;
       }
     }
@@ -901,30 +919,10 @@ function clearAllDevices() {
 }
 
 function setupDeviceWebhookListener() {
-  // Simulate incoming status every 30 seconds
+  // Check connection timeout setiap 10 detik
   setInterval(() => {
-    if (registeredDevices.length > 0 && Math.random() > 0.7) {
-      simulateIncomingStatus();
-    }
-  }, 30000);
-}
-
-function simulateIncomingStatus() {
-  if (registeredDevices.length === 0) return;
-  
-  // Pick random device
-  const randomDevice = registeredDevices[Math.floor(Math.random() * registeredDevices.length)];
-  const statusTypes = ['heartbeat', 'data_updated', 'online'];
-  const statusType = statusTypes[Math.floor(Math.random() * statusTypes.length)];
-  
-  const mockData = {
-    device_id: randomDevice.id,
-    status_type: statusType,
-    message: statusType === 'data_updated' ? 'Data updated to v' + (Math.floor(Math.random() * 5) + 1) : 'Status update',
-    timestamp: new Date().toISOString()
-  };
-  
-  updateDeviceStatus(randomDevice.id, mockData);
+    refreshAllDevices();
+  }, 10000);
 }
 
 // ============ RAMBU DATA FUNCTIONS ============
@@ -1580,44 +1578,21 @@ function showNotify(message, isSuccess = true) {
   }, 3000);
 }
 
-// ============ INITIALIZATION ============
-document.addEventListener('DOMContentLoaded', function() {
-  // Load configurations
-  loadConfig();
-  loadDevices();
-  
-  // Setup device monitoring
-  setupDeviceWebhookListener();
-  
-  // Auto-refresh device table every 5 seconds
-  setInterval(updateDeviceTable, 5000);
-  
-  // Add test device if empty
-  if (registeredDevices.length === 0) {
-    const testDevice = {
-      id: 'SPD-ALRT001',
-      status: 'updated',
-      connection: 'online',
-      lastSeen: new Date().toISOString(),
-      lastUpdate: new Date().toISOString(),
-      dataVersion: 1,
-      message: 'Test device - Ready for ESP32',
-      added: new Date().toISOString()
-    };
-    
-    registeredDevices.push(testDevice);
-    saveDevices();
-    updateDeviceTable();
-  }
-  
-  // Load rambu data if config exists
-  if (GITHUB_USER && GITHUB_REPO) {
-    loadData();
-  }
-});
-
-// ============ GLOBAL FUNCTIONS FOR ESP32 ============
+// ============ API ENDPOINT FOR ESP32 ============
 window.receiveDeviceStatus = function(deviceId, statusType, message) {
+  // Validasi device ID format
+  if (!isValidDeviceId(deviceId)) {
+    console.error(`Invalid device ID format: ${deviceId}`);
+    return false;
+  }
+  
+  // Cari device yang terdaftar
+  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+  if (deviceIndex === -1) {
+    console.error(`Device ${deviceId} not registered`);
+    return false;
+  }
+  
   const mockData = {
     device_id: deviceId,
     status_type: statusType,
@@ -1631,6 +1606,24 @@ window.receiveDeviceStatus = function(deviceId, statusType, message) {
 window.getRegisteredDevices = function() {
   return registeredDevices.map(d => d.id);
 };
+
+// ============ INITIALIZATION ============
+document.addEventListener('DOMContentLoaded', function() {
+  // Load configurations
+  loadConfig();
+  loadDevices();
+  
+  // Setup device monitoring
+  setupDeviceWebhookListener();
+  
+  // Auto-refresh device table setiap 5 detik
+  setInterval(updateDeviceTable, 5000);
+  
+  // Load rambu data jika config ada
+  if (GITHUB_USER && GITHUB_REPO) {
+    loadData();
+  }
+});
   </script>
 </body>
 </html>
