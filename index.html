@@ -3,106 +3,957 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SPEEDING ALERT - Data Management</title>  
+  <title>SPEEDING ALERT - Complete System</title>  
   <style>  
-    body{font-family:Segoe UI,Arial;background:#0c0d10;color:#eee;margin:14px;font-size:14px}  
-    h2{font-size:18px;margin-bottom:8px;color:#3b82f6}  
-    .card{background:#15161a;border:1px solid #2a2d35;border-radius:8px;padding:8px;margin-bottom:8px}  
-    .k{display:flex;gap:4.8px;flex-wrap:wrap;align-items:center;margin-bottom:4.8px}  
-    .table-container{max-height:400px;overflow-y:auto;border:1px solid #2a2d35;border-radius:4px;margin-top:8px}  
-    table{width:100%;border-collapse:collapse;font-size:12px}  
-    th,td{border:1px solid #2a2d35;padding:2.4px;text-align:left}  
-    thead th{position:sticky;top:0;background:#15161a;z-index:10;border-bottom:2px solid #2a2d35}  
-    td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}  
-    input,button,select{padding:2.4px 4.8px;margin:1.2px;font-size:13.2px}  
-    input,select{width:100%;box-sizing:border-box;background:#0f1115;border:1px solid #2a2d35;color:#eee;border-radius:4px;padding:2.4px}  
-    .btn-test{background:#3b82f6;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px}  
-    .btn-save{background:#22c55e;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px}  
-    .btn-delete{background:#ef4444;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px;margin-left:2.4px}  
-    .filter-container{margin:8px 0;display:flex;align-items:center;gap:8px}  
-    .filter-label{font-size:12px}  
-    .jalur-muatan{border-left:4px solid #888 !important}  
-    .jalur-kosongan{border-left:4px solid #3b82f6 !important}  
-    .jalur-luar{border-left:4px solid #ef4444 !important}  
-    .active-row{background-color:#2a3b4c !important}  
-    .nav-container{display:flex;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2a2d35}  
-    .nav-button{background:#1a1d24;color:#ccc;border:1px solid #2a2d35;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:12px;text-decoration:none}  
-    .nav-button.active{background:#3b82f6;color:white;border-color:#3b82f6}  
-    .nav-button:hover{background:#2a2d35}  
-    .longlat-input{flex:1;min-width:80px}  
-    .area-input{width:180px}  
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0c0d10;
+      color: #eee;
+      margin: 14px;
+      font-size: 14px;
+    }
+    
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #3b82f6;
+    }
+    
+    h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #ddd;
+    }
+    
+    /* ============ NAVIGATION TABS ============ */
+    .tab-container {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #2a2d35;
+    }
+    
+    .tab-button {
+      background: #1a1d24;
+      color: #ccc;
+      border: none;
+      border-radius: 6px 6px 0 0;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    
+    .tab-button:hover {
+      background: #2a2d35;
+    }
+    
+    .tab-button.active {
+      background: #15161a;
+      color: white;
+      border-bottom: 2px solid #3b82f6;
+    }
+    
+    /* ============ CARD STYLES ============ */
+    .card {
+      background: #15161a;
+      border: 1px solid #2a2d35;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2a2d35;
+    }
+    
+    /* ============ BUTTON STYLES ============ */
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    
+    .btn:hover {
+      background: #2563eb;
+    }
+    
+    .btn-success {
+      background: #22c55e;
+    }
+    
+    .btn-success:hover {
+      background: #16a34a;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    .btn-warning {
+      background: #f59e0b;
+    }
+    
+    .btn-warning:hover {
+      background: #d97706;
+    }
+    
+    /* ============ TABLE STYLES ============ */
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #2a2d35;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    
+    th, td {
+      border: 1px solid #2a2d35;
+      padding: 6px;
+      text-align: left;
+    }
+    
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #15161a;
+      z-index: 10;
+      border-bottom: 2px solid #2a2d35;
+      font-weight: 600;
+    }
+    
+    tbody tr:hover {
+      background: #1a1d24;
+    }
+    
+    /* ============ STATUS BADGES ============ */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      min-width: 70px;
+    }
+    
+    .status-online {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid #22c55e;
+    }
+    
+    .status-offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+    
+    .status-waiting {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      border: 1px solid #f59e0b;
+    }
+    
+    /* ============ FORM STYLES ============ */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .form-label {
+      font-size: 12px;
+      color: #aaa;
+    }
+    
+    .form-input, .form-select {
+      background: #0f1115;
+      border: 1px solid #2a2d35;
+      color: #eee;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+    }
+    
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    /* ============ DEVICE FORM ============ */
+    .device-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    /* ============ CONFIG SECTION ============ */
+    .config-section {
+      background: #1a1d24;
+      border: 1px solid #2a2d35;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .config-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #3b82f6;
+    }
+    
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .config-help {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    /* ============ CONTENT AREA ============ */
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* ============ RAMBU TABLE SPECIFIC ============ */
+    .filter-container {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .filter-label {
+      font-size: 12px;
+    }
+    
+    .jalur-muatan {
+      border-left: 4px solid #888 !important;
+    }
+    
+    .jalur-kosongan {
+      border-left: 4px solid #3b82f6 !important;
+    }
+    
+    .jalur-luar {
+      border-left: 4px solid #ef4444 !important;
+    }
+    
+    .active-row {
+      background-color: #2a3b4c !important;
+    }
+    
+    .k {
+      display: flex;
+      gap: 4.8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 4.8px;
+    }
+    
+    .longlat-input {
+      flex: 1;
+      min-width: 80px;
+    }
+    
+    .area-input {
+      width: 180px;
+    }
+    
+    /* ============ NOTIFICATION ============ */
+    .notify {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      background: #22c55e;
+      color: white;
+      border-radius: 6px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .notify.error {
+      background: #ef4444;
+    }
+    
+    /* ============ MISC ============ */
+    .last-seen {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+    
+    .device-list-empty {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 
 <body>  
-  <div class="nav-container">
-    <a href="index.html" class="nav-button active">📊 Data Rambu</a>
-    <a href="devices.html" class="nav-button">📡 Device Monitor</a>
+  <!-- TABS NAVIGATION -->
+  <div class="tab-container">
+    <button class="tab-button active" onclick="showTab('data-tab')">📊 Data Rambu</button>
+    <button class="tab-button" onclick="showTab('device-tab')">📡 Device Monitor</button>
   </div>
   
-  <h2>📊 RAMBU DATA MANAGEMENT</h2>  
-    
-  <div class="card">  
-    <div class="k">  
-      <button onclick="exportCSV()">Export CSV</button>  
-      <input type="file" id="importFile" style="display:none" accept=".csv" onchange="importCSV(this)">  
-      <button onclick="document.getElementById('importFile').click()">Import CSV</button>  
-      <button class="btn-save" onclick="addRow()">+ Add Row</button>
-      <button class="btn-test" onclick="calculateAutoRadius()">auto distance CP</button>
-      <button class="btn-test" onclick="saveAll()">Save All</button>
+  <!-- DATA RAMBU TAB -->
+  <div id="data-tab" class="tab-content active">
+    <h2>📊 RAMBU DATA MANAGEMENT</h2>  
+      
+    <div class="card">  
+      <div class="k">  
+        <button onclick="exportCSV()" class="btn">Export CSV</button>  
+        <input type="file" id="importFile" style="display:none" accept=".csv" onchange="importCSV(this)">  
+        <button onclick="document.getElementById('importFile').click()" class="btn">Import CSV</button>  
+        <button class="btn-success" onclick="addRow()">+ Add Row</button>
+        <button class="btn-warning" onclick="calculateAutoRadius()">Auto Distance CP</button>
+        <button class="btn-success" onclick="saveAll()">Save All</button>
+      </div>  
+      
+      <div class="filter-container">
+        <span class="filter-label">Filter Jalur:</span>
+        <select id="filterJalur" onchange="filterTable()" class="form-select">
+          <option value="all">Semua Jalur</option>
+          <option value="0">Muatan</option>
+          <option value="1">Kosongan</option>
+          <option value="2">Luar Area</option>
+        </select>
+      </div>
+      
+      <div class="table-container">
+        <table>  
+          <thead><tr>  
+            <th>#</th><th>Longitude</th><th>Latitude</th><th>Nama Area</th>  
+            <th>Speed Limit</th><th>Radius</th><th>Jalur</th><th>MP3 Track</th><th>Checkpoint</th><th>1xmp3</th><th>Enabled</th><th>Actions</th>  
+          </tr></thead>  
+          <tbody id="tableBody"></tbody>  
+        </table>  
+      </div>
     </div>  
+  </div>
+  
+  <!-- DEVICE MONITOR TAB -->
+  <div id="device-tab" class="tab-content">
+    <h2>📡 DEVICE MONITORING</h2>
     
-    <div class="filter-container">
-      <span class="filter-label">Filter Jalur:</span>
-      <select id="filterJalur" onchange="filterTable()">
-        <option value="all">Semua Jalur</option>
-        <option value="0">Muatan</option>
-        <option value="1">Kosongan</option>
-        <option value="2">Luar Area</option>
-      </select>
+    <!-- GITHUB CONFIGURATION -->
+    <div class="config-section">
+      <div class="config-title">🔧 GitHub Configuration</div>
+      <div class="config-grid">
+        <div class="form-group">
+          <label class="form-label">GitHub Username</label>
+          <input type="text" id="githubUser" class="form-input" placeholder="fahruldev">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Repository Name</label>
+          <input type="text" id="githubRepo" class="form-input" placeholder="rambu-database">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input type="password" id="githubToken" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        <div class="config-help">Get token from GitHub Settings → Developer Settings → Personal access tokens</div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <button onclick="saveGitHubConfig()" class="btn btn-success">💾 Save Config</button>
+        <button onclick="testGitHubConnection()" class="btn">🔗 Test Connection</button>
+      </div>
     </div>
     
-    <div class="table-container">
-      <table>  
-        <thead><tr>  
-          <th>#</th><th>Longitude</th><th>Latitude</th><th>Nama Area</th>  
-          <th>Overspeed km/jam</th><th>Radius</th><th>Jalur</th><th>MP3 Track</th><th>Checkpoint</th><th>1xmp3</th><th>Enabled</th><th>Actions</th>  
-        </tr></thead>  
-        <tbody id="tableBody"></tbody>  
-      </table>  
+    <!-- ADD DEVICE FORM -->
+    <div class="card">
+      <div class="card-header">
+        <h3 style="margin:0">➕ Add New Device</h3>
+      </div>
+      
+      <div class="device-form">
+        <div class="form-group">
+          <label class="form-label">Device ID</label>
+          <select id="deviceIdSelect" class="form-select">
+            <option value="">Select Device ID</option>
+            <option value="SPD-ALRT001">SPD-ALRT001</option>
+            <option value="SPD-ALRT002">SPD-ALRT002</option>
+            <option value="SPD-ALRT003">SPD-ALRT003</option>
+            <option value="SPD-ALRT004">SPD-ALRT004</option>
+            <option value="SPD-ALRT005">SPD-ALRT005</option>
+            <option value="SPD-ALRT006">SPD-ALRT006</option>
+            <option value="SPD-ALRT007">SPD-ALRT007</option>
+            <option value="SPD-ALRT008">SPD-ALRT008</option>
+            <option value="SPD-ALRT009">SPD-ALRT009</option>
+            <option value="SPD-ALRT010">SPD-ALRT010</option>
+          </select>
+        </div>
+        
+        <div class="form-group" style="align-self: flex-end;">
+          <button onclick="addDevice()" class="btn btn-success">➕ Add Device</button>
+        </div>
+      </div>
+      
+      <div style="font-size:11px;color:#666;margin-top:8px">
+        <strong>Note:</strong> Device must be registered here before ESP32 can send status.
+      </div>
     </div>
-  </div>  
+    
+    <!-- DEVICE TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <h3 style="margin:0">📋 Registered Devices</h3>
+        <div>
+          <button onclick="refreshAllDevices()" class="btn">🔄 Refresh All</button>
+          <button onclick="checkAllDevicesUpdate()" class="btn">📡 Check Updates</button>
+          <button onclick="clearAllDevices()" class="btn btn-danger">🗑️ Clear All</button>
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th width="25%">Device</th>
+              <th width="20%">Status</th>
+              <th width="20%">Connection</th>
+              <th width="25%">Last Updated</th>
+              <th width="10%">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBody">
+            <!-- Devices will appear here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="emptyMessage" class="device-list-empty" style="display:none">
+        No devices registered. Add devices using the form above.
+      </div>
+    </div>
+  </div>
+  
+  <!-- NOTIFICATION -->
+  <div id="notify" class="notify"></div>
 
   <script>
-// ============ KONFIGURASI GITHUB ============
-const GITHUB_USER = 'cvr-gpiodev';
-const GITHUB_REPO = 'rambu-speeding';
-const GITHUB_TOKEN = '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';
+// ============ KONFIGURASI GLOBAL ============
+let GITHUB_USER = 'cvr-gpiodev';
+let GITHUB_REPO = 'rambu-speeding';
+let GITHUB_TOKEN = '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';
 const GITHUB_API = 'https://api.github.com';
 
-// ============ VARIABEL GLOBAL ============
+// ============ VARIABLES ============
 let rambuData = [];
 let currentActiveRow = -1;
+let registeredDevices = [];
 
-// ============ FUNGSI NOTIFIKASI ============
-function showNotify(msg, isSuccess=true){
-  alert(msg); // Simple alert untuk demo
+// ============ TAB FUNCTIONS ============
+function showTab(tabId) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Show selected tab
+  document.getElementById(tabId).classList.add('active');
+  
+  // Update tab buttons
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  event.target.classList.add('active');
+  
+  // Refresh data if needed
+  if (tabId === 'data-tab') {
+    updateDeviceStatusOnRambuTab();
+  }
 }
 
-// ============ FUNGSI LOAD DATA ============
+// ============ GITHUB CONFIGURATION ============
+function loadConfig() {
+  const config = localStorage.getItem('github_config');
+  if (config) {
+    const { user, repo, token } = JSON.parse(config);
+    GITHUB_USER = user || '';
+    GITHUB_REPO = repo || '';
+    GITHUB_TOKEN = token || '';
+    
+    // Update input fields
+    document.getElementById('githubUser').value = GITHUB_USER;
+    document.getElementById('githubRepo').value = GITHUB_REPO;
+    document.getElementById('githubToken').value = GITHUB_TOKEN;
+  }
+}
+
+function saveGitHubConfig() {
+  const user = document.getElementById('githubUser').value.trim();
+  const repo = document.getElementById('githubRepo').value.trim();
+  const token = document.getElementById('githubToken').value.trim();
+  
+  if (!user || !repo) {
+    showNotify('GitHub Username and Repository are required', false);
+    return;
+  }
+  
+  GITHUB_USER = user;
+  GITHUB_REPO = repo;
+  GITHUB_TOKEN = token;
+  
+  const config = { user, repo, token };
+  localStorage.setItem('github_config', JSON.stringify(config));
+  
+  showNotify('GitHub configuration saved successfully');
+}
+
+async function testGitHubConnection() {
+  if (!GITHUB_USER || !GITHUB_REPO) {
+    showNotify('Please save configuration first', false);
+    return;
+  }
+  
+  try {
+    // Test connection to version file
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    if (response.ok) {
+      const version = await response.text();
+      showNotify(`✅ Connected! Current version: ${version.trim()}`);
+    } else {
+      showNotify('❌ Cannot connect to repository. Check your configuration.', false);
+    }
+  } catch (error) {
+    showNotify(`❌ Connection failed: ${error.message}`, false);
+  }
+}
+
+// ============ DEVICE MONITORING FUNCTIONS ============
+function loadDevices() {
+  const saved = localStorage.getItem('registered_devices');
+  if (saved) {
+    registeredDevices = JSON.parse(saved);
+  }
+  updateDeviceTable();
+}
+
+function saveDevices() {
+  localStorage.setItem('registered_devices', JSON.stringify(registeredDevices));
+}
+
+function addDevice() {
+  const deviceId = document.getElementById('deviceIdSelect').value;
+  
+  if (!deviceId) {
+    showNotify('Please select a Device ID', false);
+    return;
+  }
+  
+  // Check if device already exists
+  if (registeredDevices.some(device => device.id === deviceId)) {
+    showNotify(`Device ${deviceId} already exists`, false);
+    return;
+  }
+  
+  // Add new device
+  const newDevice = {
+    id: deviceId,
+    status: 'waiting',
+    connection: 'offline',
+    lastSeen: null,
+    lastUpdate: null,
+    dataVersion: 0,
+    added: new Date().toISOString()
+  };
+  
+  registeredDevices.push(newDevice);
+  saveDevices();
+  
+  // Clear form
+  document.getElementById('deviceIdSelect').value = '';
+  
+  showNotify(`Device ${deviceId} registered successfully`);
+  updateDeviceTable();
+}
+
+async function updateDeviceStatus(deviceId, statusData) {
+  // Find device
+  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+  if (deviceIndex === -1) {
+    console.log(`Device ${deviceId} not registered`);
+    return false;
+  }
+  
+  // Update status
+  const now = new Date();
+  const device = registeredDevices[deviceIndex];
+  
+  // Update connection status
+  device.connection = 'online';
+  device.lastSeen = now.toISOString();
+  
+  // Update device status
+  if (statusData.status_type === 'data_updated') {
+    device.status = 'updated';
+    device.lastUpdate = now.toISOString();
+    
+    // Update version in GitHub
+    const newVersion = await updateVersionOnGitHub(deviceId);
+    if (newVersion) {
+      device.dataVersion = newVersion;
+      device.message = `Updated to v${newVersion}`;
+    }
+    
+  } else if (statusData.status_type === 'online') {
+    device.status = 'updated';
+    device.lastUpdate = now.toISOString();
+    device.message = statusData.message || 'Device online';
+  } else {
+    device.message = statusData.message || 'Status update';
+  }
+  
+  saveDevices();
+  updateDeviceTable();
+  
+  console.log(`Status updated for ${deviceId}`);
+  return true;
+}
+
+async function updateVersionOnGitHub(deviceId) {
+  if (!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) {
+    console.log('GitHub configuration missing');
+    return null;
+  }
+  
+  try {
+    // Get current version
+    const versionResponse = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    let currentVersion = 1;
+    if (versionResponse.ok) {
+      const versionText = await versionResponse.text();
+      currentVersion = parseInt(versionText.trim()) || 1;
+    }
+    
+    const newVersion = currentVersion + 1;
+    
+    // Get SHA of version file
+    const shaResponse = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    
+    if (!shaResponse.ok) {
+      throw new Error('Failed to get file SHA');
+    }
+    
+    const shaData = await shaResponse.json();
+    const sha = shaData.sha;
+    
+    // Update version file
+    const updateResponse = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Device ${deviceId} updated data - v${newVersion}`,
+          content: btoa(String(newVersion)),
+          sha: sha
+        })
+      }
+    );
+    
+    if (!updateResponse.ok) {
+      throw new Error('Failed to update version');
+    }
+    
+    console.log(`✅ Version updated to ${newVersion} for ${deviceId}`);
+    return newVersion;
+    
+  } catch (error) {
+    console.error('❌ Error updating version:', error);
+    return null;
+  }
+}
+
+function updateDeviceTable() {
+  const tbody = document.getElementById('deviceTableBody');
+  const emptyMsg = document.getElementById('emptyMessage');
+  
+  if (registeredDevices.length === 0) {
+    tbody.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  
+  emptyMsg.style.display = 'none';
+  
+  let html = '';
+  const now = new Date();
+  
+  registeredDevices.forEach(device => {
+    const lastSeen = device.lastSeen ? new Date(device.lastSeen) : null;
+    const lastUpdate = device.lastUpdate ? new Date(device.lastUpdate) : null;
+    
+    // Determine connection badge
+    let connectionBadge = 'status-offline';
+    let connectionText = 'Offline';
+    
+    if (lastSeen) {
+      const minutesAgo = Math.floor((now - lastSeen) / 60000);
+      
+      if (minutesAgo < 3) {
+        connectionBadge = 'status-online';
+        connectionText = 'Online';
+      } else if (minutesAgo < 10) {
+        connectionBadge = 'status-waiting';
+        connectionText = 'Waiting';
+      }
+    }
+    
+    // Determine status badge
+    let statusBadge = 'status-waiting';
+    let statusText = 'Waiting';
+    let lastUpdateText = 'Never';
+    
+    if (lastUpdate) {
+      const updateMinutesAgo = Math.floor((now - lastUpdate) / 60000);
+      
+      if (updateMinutesAgo < 5) {
+        statusBadge = 'status-online';
+        statusText = 'Updated';
+      }
+      lastUpdateText = `${updateMinutesAgo} min ago`;
+    }
+    
+    // Add data version info
+    const versionInfo = device.dataVersion > 0 ? `v${device.dataVersion}` : 'No data';
+    
+    html += `
+      <tr>
+        <td>
+          <strong>${device.id}</strong><br>
+          <small style="color:#666;font-size:10px">${versionInfo}</small>
+        </td>
+        <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
+        <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
+        <td>
+          ${lastUpdateText}<br>
+          <small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small>
+          ${device.message ? `<br><small style="color:#3b82f6;font-size:10px">${device.message}</small>` : ''}
+        </td>
+        <td>
+          <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
+          <button onclick="checkDeviceUpdate('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px">Check Update</button>
+          <button onclick="removeDevice('${device.id}')" class="btn btn-danger" style="padding:4px 8px;font-size:11px;margin-top:2px">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  tbody.innerHTML = html;
+}
+
+async function checkDeviceUpdate(deviceId) {
+  if (!GITHUB_USER || !GITHUB_REPO) {
+    showNotify('GitHub configuration required', false);
+    return;
+  }
+  
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    
+    if (response.ok) {
+      const versionText = await response.text();
+      const currentVersion = parseInt(versionText.trim()) || 1;
+      
+      const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
+      if (deviceIndex !== -1) {
+        const device = registeredDevices[deviceIndex];
+        
+        if (currentVersion > device.dataVersion) {
+          device.dataVersion = currentVersion;
+          device.status = 'updated';
+          device.lastUpdate = new Date().toISOString();
+          device.message = `Data v${currentVersion} available`;
+          
+          saveDevices();
+          updateDeviceTable();
+          
+          showNotify(`Device ${deviceId} has new data v${currentVersion}`);
+        } else {
+          showNotify(`Device ${deviceId} is up to date (v${currentVersion})`);
+        }
+      }
+    }
+  } catch (error) {
+    showNotify(`Failed to check updates: ${error.message}`, false);
+  }
+}
+
+function checkAllDevicesUpdate() {
+  registeredDevices.forEach(device => {
+    checkDeviceUpdate(device.id);
+  });
+}
+
+function removeDevice(deviceId) {
+  if (confirm(`Remove device ${deviceId} from monitoring?`)) {
+    registeredDevices = registeredDevices.filter(d => d.id !== deviceId);
+    saveDevices();
+    updateDeviceTable();
+    showNotify(`Device ${deviceId} removed`);
+  }
+}
+
+function testDevice(deviceId) {
+  // Simulate test connection
+  const mockData = {
+    device_id: deviceId,
+    status_type: 'heartbeat',
+    message: 'Test connection',
+    timestamp: new Date().toISOString()
+  };
+  
+  if (updateDeviceStatus(deviceId, mockData)) {
+    showNotify(`Test connection sent to ${deviceId}`);
+  }
+}
+
+function refreshAllDevices() {
+  // Check for stale devices
+  const now = new Date();
+  let updatedCount = 0;
+  
+  registeredDevices.forEach(device => {
+    if (device.lastSeen) {
+      const minutesAgo = Math.floor((now - new Date(device.lastSeen)) / 60000);
+      
+      if (minutesAgo > 10) {
+        device.connection = 'offline';
+        updatedCount++;
+      }
+    }
+  });
+  
+  saveDevices();
+  updateDeviceTable();
+  showNotify(`Refreshed ${updatedCount} devices`);
+}
+
+function clearAllDevices() {
+  if (confirm('Clear all registered devices? This cannot be undone.')) {
+    registeredDevices = [];
+    saveDevices();
+    updateDeviceTable();
+    showNotify('All devices cleared');
+  }
+}
+
+function setupDeviceWebhookListener() {
+  // Simulate incoming status every 30 seconds
+  setInterval(() => {
+    if (registeredDevices.length > 0 && Math.random() > 0.7) {
+      simulateIncomingStatus();
+    }
+  }, 30000);
+}
+
+function simulateIncomingStatus() {
+  if (registeredDevices.length === 0) return;
+  
+  // Pick random device
+  const randomDevice = registeredDevices[Math.floor(Math.random() * registeredDevices.length)];
+  const statusTypes = ['heartbeat', 'data_updated', 'online'];
+  const statusType = statusTypes[Math.floor(Math.random() * statusTypes.length)];
+  
+  const mockData = {
+    device_id: randomDevice.id,
+    status_type: statusType,
+    message: statusType === 'data_updated' ? 'Data updated to v' + (Math.floor(Math.random() * 5) + 1) : 'Status update',
+    timestamp: new Date().toISOString()
+  };
+  
+  updateDeviceStatus(randomDevice.id, mockData);
+}
+
+// ============ RAMBU DATA FUNCTIONS ============
 async function loadData(){  
   try{ 
+    if (!GITHUB_USER || !GITHUB_REPO) {
+      console.log('GitHub config not set');
+      return;
+    }
+    
     const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/rambu-data.json`);
     const data = await response.json();
     rambuData = data.rambu || [];
     renderTable(); 
   } catch(e) {
     console.error(e);
-    showNotify('Failed to load data', false);
   } 
 }
 
-// ============ FUNGSI HITUNG JARAK ============
+function updateDeviceStatusOnRambuTab() {
+  // Update device status in rambu tab if needed
+  const onlineDevices = registeredDevices.filter(d => d.connection === 'online').length;
+  const totalDevices = registeredDevices.length;
+  
+  if (totalDevices > 0) {
+    console.log(`Devices: ${onlineDevices}/${totalDevices} online`);
+  }
+}
+
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -114,7 +965,6 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// ============ FUNGSI AUTO RADIUS ============
 function calculateAutoRadius() {
   const rows = document.querySelectorAll('#tableBody tr');
   const rambuByJalur = {0: [], 1: []};
@@ -170,7 +1020,6 @@ function calculateAutoRadius() {
   showNotify('Radius otomatis dihitung');
 }
 
-// ============ FUNGSI SAVE ALL ============
 function saveAll() {
   const rows = document.querySelectorAll('#tableBody tr');
   let savedCount = 0;
@@ -186,7 +1035,6 @@ function saveAll() {
   showNotify(`${savedCount} rambu data saved.`);
 }
 
-// ============ FUNGSI ACTIVE ROW ============
 function setActiveRow(rowIndex) {
   document.querySelectorAll('#tableBody tr').forEach(tr => {
     tr.classList.remove('active-row');
@@ -201,7 +1049,6 @@ function setActiveRow(rowIndex) {
   }
 }
 
-// ============ FUNGSI FILTER TABLE ============
 function filterTable() {
   const filterValue = document.getElementById('filterJalur').value;
   const rows = document.querySelectorAll('#tableBody tr');
@@ -218,7 +1065,6 @@ function filterTable() {
   });
 }
 
-// ============ FUNGSI RENDER TABLE ============
 function renderTable(){  
   const body = document.getElementById('tableBody'); 
   body.innerHTML = '';  
@@ -233,6 +1079,7 @@ function renderTable(){
       const x=document.createElement('input');
       x.value=v;
       x.type=t;
+      x.className = 'form-input';
       return x;
     };
     
@@ -240,12 +1087,13 @@ function renderTable(){
       const x=document.createElement('input');
       x.value=v;
       x.type='text';
-      x.className=className;
+      x.className=`form-input ${className}`;
       return x;
     };
     
     const sel=(options, selected)=>{
       const s=document.createElement('select'); 
+      s.className = 'form-select';
       options.forEach(opt=>{  
         const o=document.createElement('option'); 
         o.value=opt.value; 
@@ -260,6 +1108,7 @@ function renderTable(){
       const c=document.createElement('input'); 
       c.type='checkbox'; 
       c.checked=checked; 
+      c.className = 'form-input';
       return c; 
     };  
     
@@ -286,7 +1135,7 @@ function renderTable(){
     tr.appendChild(tdLat);
     
     const inArea=inp(r.nama);
-    inArea.className='area-input';
+    inArea.className='form-input area-input';
     inArea.onclick = (e) => {
       e.stopPropagation();
       setActiveRow(i);
@@ -345,7 +1194,7 @@ function renderTable(){
     };
     
     const saveBtn=document.createElement('button'); 
-    saveBtn.className='btn-save'; 
+    saveBtn.className='btn btn-success'; 
     saveBtn.textContent='Save';  
     saveBtn.onclick=async(e)=>{ 
       e.stopPropagation();
@@ -369,7 +1218,7 @@ function renderTable(){
     };  
     
     const delBtn=document.createElement('button'); 
-    delBtn.className='btn-delete'; 
+    delBtn.className='btn btn-danger'; 
     delBtn.textContent='Delete';  
     delBtn.onclick=async(e)=>{ 
       e.stopPropagation();
@@ -405,9 +1254,13 @@ function renderTable(){
   filterTable();
 }  
 
-// ============ GITHUB API FUNCTIONS ============
 async function loadRambuFromGitHub() {
   try {
+    if (!GITHUB_USER || !GITHUB_REPO) {
+      console.log('GitHub config not set');
+      return [];
+    }
+    
     const response = await fetch(
       `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/rambu-data.json`
     );
@@ -421,6 +1274,10 @@ async function loadRambuFromGitHub() {
 
 async function getFileSHA() {
   try {
+    if (!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) {
+      throw new Error('GitHub configuration missing');
+    }
+    
     const response = await fetch(
       `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rambu-data.json`,
       {
@@ -480,7 +1337,7 @@ async function saveRambuToGitHub(index, rambu) {
       throw new Error('GitHub API error');
     }
     
-    await updateVersion();
+    await updateRambuVersion();
     
     return true;
   } catch (error) {
@@ -528,7 +1385,7 @@ async function deleteRambuFromGitHub(index) {
       throw new Error('GitHub API error');
     }
     
-    await updateVersion();
+    await updateRambuVersion();
     
     return true;
   } catch (error) {
@@ -538,8 +1395,12 @@ async function deleteRambuFromGitHub(index) {
   }
 }
 
-async function updateVersion() {
+async function updateRambuVersion() {
   try {
+    if (!GITHUB_USER || !GITHUB_REPO || !GITHUB_TOKEN) {
+      return;
+    }
+    
     const versionResponse = await fetch(
       `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
     );
@@ -587,7 +1448,6 @@ async function updateVersion() {
   }
 }
 
-// ============ ADD ROW FUNCTION ============
 function addRow(){ 
   const newIndex = rambuData.length;
   const newRow = {
@@ -609,7 +1469,6 @@ function addRow(){
   showNotify('New row added');
 }  
 
-// ============ EXPORT CSV FUNCTION ============
 function exportCSV(){  
   let csv = 'longitude,latitude,area,limit_kph,radius_m,jalur,mp3_track,checkpoint,one_time_mp3,enabled\n';
   
@@ -632,7 +1491,6 @@ function exportCSV(){
   showNotify('CSV Exported');
 }  
 
-// ============ IMPORT CSV FUNCTION ============
 async function importCSV(input){  
   const file = input.files[0];  
   if(!file) return;  
@@ -696,7 +1554,7 @@ async function importCSV(input){
           }
         );
         
-        await updateVersion();
+        await updateRambuVersion();
         renderTable();
         showNotify(`Imported ${newRambuData.length} rambu from CSV`);
       }
@@ -710,10 +1568,69 @@ async function importCSV(input){
   input.value = '';
 }  
 
+// ============ NOTIFICATION ============
+function showNotify(message, isSuccess = true) {
+  const notify = document.getElementById('notify');
+  notify.textContent = message;
+  notify.className = isSuccess ? 'notify' : 'notify error';
+  notify.style.display = 'block';
+  
+  setTimeout(() => {
+    notify.style.display = 'none';
+  }, 3000);
+}
+
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {
-  loadData();
+  // Load configurations
+  loadConfig();
+  loadDevices();
+  
+  // Setup device monitoring
+  setupDeviceWebhookListener();
+  
+  // Auto-refresh device table every 5 seconds
+  setInterval(updateDeviceTable, 5000);
+  
+  // Add test device if empty
+  if (registeredDevices.length === 0) {
+    const testDevice = {
+      id: 'SPD-ALRT001',
+      status: 'updated',
+      connection: 'online',
+      lastSeen: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
+      dataVersion: 1,
+      message: 'Test device - Ready for ESP32',
+      added: new Date().toISOString()
+    };
+    
+    registeredDevices.push(testDevice);
+    saveDevices();
+    updateDeviceTable();
+  }
+  
+  // Load rambu data if config exists
+  if (GITHUB_USER && GITHUB_REPO) {
+    loadData();
+  }
 });
-  </script>  
+
+// ============ GLOBAL FUNCTIONS FOR ESP32 ============
+window.receiveDeviceStatus = function(deviceId, statusType, message) {
+  const mockData = {
+    device_id: deviceId,
+    status_type: statusType,
+    message: message,
+    timestamp: new Date().toISOString()
+  };
+  
+  return updateDeviceStatus(deviceId, mockData);
+};
+
+window.getRegisteredDevices = function() {
+  return registeredDevices.map(d => d.id);
+};
+  </script>
 </body>
 </html>
