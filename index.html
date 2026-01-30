@@ -3,619 +3,717 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SPEEDING ALERT - DATA RAMBU</title>  
+  <title>SPEEDING ALERT - Data Management</title>  
   <style>  
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #0c0d10;
-      color: #eee;
-      margin: 14px;
-      font-size: 14px;
-    }
-    
-    h2 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      color: #3b82f6;
-    }
-    
-    /* ============ NAVIGATION ============ */
-    .nav-container {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #2a2d35;
-    }
-    
-    .nav-button {
-      background: #1a1d24;
-      color: #ccc;
-      border: 1px solid #2a2d35;
-      border-radius: 4px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    
-    .nav-button:hover {
-      background: #2a2d35;
-    }
-    
-    .nav-button.active {
-      background: #3b82f6;
-      color: white;
-      border-color: #3b82f6;
-    }
-    
-    /* ============ CARD STYLES ============ */
-    .card {
-      background: #15161a;
-      border: 1px solid #2a2d35;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #2a2d35;
-    }
-    
-    /* ============ BUTTON STYLES ============ */
-    .btn {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background 0.2s;
-    }
-    
-    .btn:hover {
-      background: #2563eb;
-    }
-    
-    .btn-success {
-      background: #22c55e;
-    }
-    
-    .btn-success:hover {
-      background: #16a34a;
-    }
-    
-    .btn-danger {
-      background: #ef4444;
-    }
-    
-    .btn-danger:hover {
-      background: #dc2626;
-    }
-    
-    /* ============ TABLE STYLES ============ */
-    .table-container {
-      max-height: 500px;
-      overflow-y: auto;
-      border: 1px solid #2a2d35;
-      border-radius: 6px;
-      margin-top: 12px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    
-    th, td {
-      border: 1px solid #2a2d35;
-      padding: 8px;
-      text-align: left;
-    }
-    
-    thead th {
-      position: sticky;
-      top: 0;
-      background: #15161a;
-      z-index: 10;
-      border-bottom: 2px solid #2a2d35;
-      font-weight: 600;
-    }
-    
-    tbody tr:hover {
-      background: #1a1d24;
-    }
-    
-    /* ============ STATUS BADGES ============ */
-    .status-badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-      text-align: center;
-      min-width: 70px;
-    }
-    
-    .status-online {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
-      border: 1px solid #22c55e;
-    }
-    
-    .status-offline {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid #ef4444;
-    }
-    
-    .status-waiting {
-      background: rgba(245, 158, 11, 0.2);
-      color: #f59e0b;
-      border: 1px solid #f59e0b;
-    }
-    
-    /* ============ DEVICE FORM ============ */
-    .device-form {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      margin-bottom: 16px;
-      padding: 12px;
-      background: #1a1d24;
-      border-radius: 6px;
-      border: 1px solid #2a2d35;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .form-label {
-      font-size: 12px;
-      color: #aaa;
-    }
-    
-    .form-select {
-      background: #0f1115;
-      border: 1px solid #2a2d35;
-      color: #eee;
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 13px;
-      width: 100%;
-    }
-    
-    /* ============ DEVICE LIST ============ */
-    .device-list-empty {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-      font-style: italic;
-    }
-    
-    /* ============ NOTIFICATION ============ */
-    .notify {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 16px;
-      background: #22c55e;
-      color: white;
-      border-radius: 6px;
-      display: none;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    
-    .notify.error {
-      background: #ef4444;
-    }
-    
-    .last-seen {
-      font-size: 11px;
-      color: #888;
-      margin-top: 2px;
-    }
+    body{font-family:Segoe UI,Arial;background:#0c0d10;color:#eee;margin:14px;font-size:14px}  
+    h2{font-size:18px;margin-bottom:8px;color:#3b82f6}  
+    .card{background:#15161a;border:1px solid #2a2d35;border-radius:8px;padding:8px;margin-bottom:8px}  
+    .k{display:flex;gap:4.8px;flex-wrap:wrap;align-items:center;margin-bottom:4.8px}  
+    .table-container{max-height:400px;overflow-y:auto;border:1px solid #2a2d35;border-radius:4px;margin-top:8px}  
+    table{width:100%;border-collapse:collapse;font-size:12px}  
+    th,td{border:1px solid #2a2d35;padding:2.4px;text-align:left}  
+    thead th{position:sticky;top:0;background:#15161a;z-index:10;border-bottom:2px solid #2a2d35}  
+    td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}  
+    input,button,select{padding:2.4px 4.8px;margin:1.2px;font-size:13.2px}  
+    input,select{width:100%;box-sizing:border-box;background:#0f1115;border:1px solid #2a2d35;color:#eee;border-radius:4px;padding:2.4px}  
+    .btn-test{background:#3b82f6;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px}  
+    .btn-save{background:#22c55e;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px}  
+    .btn-delete{background:#ef4444;color:white;border:none;border-radius:4px;padding:1.2px 4.8px;cursor:pointer;font-size:12px;margin-left:2.4px}  
+    .filter-container{margin:8px 0;display:flex;align-items:center;gap:8px}  
+    .filter-label{font-size:12px}  
+    .jalur-muatan{border-left:4px solid #888 !important}  
+    .jalur-kosongan{border-left:4px solid #3b82f6 !important}  
+    .jalur-luar{border-left:4px solid #ef4444 !important}  
+    .active-row{background-color:#2a3b4c !important}  
+    .nav-container{display:flex;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2a2d35}  
+    .nav-button{background:#1a1d24;color:#ccc;border:1px solid #2a2d35;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:12px;text-decoration:none}  
+    .nav-button.active{background:#3b82f6;color:white;border-color:#3b82f6}  
+    .nav-button:hover{background:#2a2d35}  
+    .longlat-input{flex:1;min-width:80px}  
+    .area-input{width:180px}  
   </style>
 </head>
 
 <body>  
   <div class="nav-container">
-    <a href="index.html" class="nav-button">📊 Data Rambu</a>
-    <a href="devices.html" class="nav-button active">📡 Device Monitor</a>
+    <a href="index.html" class="nav-button active">📊 Data Rambu</a>
+    <a href="devices.html" class="nav-button">📡 Device Monitor</a>
   </div>
   
-  <h2>📡 DEVICE MONITORING</h2>
-  
-  <!-- ADD DEVICE FORM -->
-  <div class="card">
-    <div class="card-header">
-      <h3 style="margin:0">➕ Add New Device</h3>
-    </div>
+  <h2>📊 RAMBU DATA MANAGEMENT</h2>  
     
-    <div class="device-form">
-      <div class="form-group">
-        <label class="form-label">Device ID</label>
-        <select id="deviceIdSelect" class="form-select">
-          <option value="">Select Device ID</option>
-          <option value="SPD-ALRT001">SPD-ALRT001</option>
-          <option value="SPD-ALRT002">SPD-ALRT002</option>
-          <option value="SPD-ALRT003">SPD-ALRT003</option>
-          <option value="SPD-ALRT004">SPD-ALRT004</option>
-          <option value="SPD-ALRT005">SPD-ALRT005</option>
-          <option value="SPD-ALRT006">SPD-ALRT006</option>
-          <option value="SPD-ALRT007">SPD-ALRT007</option>
-          <option value="SPD-ALRT008">SPD-ALRT008</option>
-          <option value="SPD-ALRT009">SPD-ALRT009</option>
-          <option value="SPD-ALRT010">SPD-ALRT010</option>
-        </select>
-      </div>
-      
-      <div class="form-group" style="align-self: flex-end;">
-        <button onclick="addDevice()" class="btn btn-success">➕ Add Device</button>
-      </div>
-    </div>
+  <div class="card">  
+    <div class="k">  
+      <button onclick="exportCSV()">Export CSV</button>  
+      <input type="file" id="importFile" style="display:none" accept=".csv" onchange="importCSV(this)">  
+      <button onclick="document.getElementById('importFile').click()">Import CSV</button>  
+      <button class="btn-save" onclick="addRow()">+ Add Row</button>
+      <button class="btn-test" onclick="calculateAutoRadius()">auto distance CP</button>
+      <button class="btn-test" onclick="saveAll()">Save All</button>
+    </div>  
     
-    <div style="font-size:11px;color:#666;margin-top:8px">
-      <strong>Note:</strong> Device must be registered here before ESP32 can send status.
-    </div>
-  </div>
-  
-  <!-- DEVICE TABLE -->
-  <div class="card">
-    <div class="card-header">
-      <h3 style="margin:0">📋 Registered Devices</h3>
-      <div>
-        <button onclick="refreshAllDevices()" class="btn">🔄 Refresh All</button>
-        <button onclick="clearAllDevices()" class="btn btn-danger">🗑️ Clear All</button>
-      </div>
+    <div class="filter-container">
+      <span class="filter-label">Filter Jalur:</span>
+      <select id="filterJalur" onchange="filterTable()">
+        <option value="all">Semua Jalur</option>
+        <option value="0">Muatan</option>
+        <option value="1">Kosongan</option>
+        <option value="2">Luar Area</option>
+      </select>
     </div>
     
     <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th width="25%">Device</th>
-            <th width="20%">Status</th>
-            <th width="20%">Connection</th>
-            <th width="25%">Last Updated</th>
-            <th width="10%">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="deviceTableBody">
-          <!-- Devices will appear here -->
-        </tbody>
-      </table>
+      <table>  
+        <thead><tr>  
+          <th>#</th><th>Longitude</th><th>Latitude</th><th>Nama Area</th>  
+          <th>Overspeed km/jam</th><th>Radius</th><th>Jalur</th><th>MP3 Track</th><th>Checkpoint</th><th>1xmp3</th><th>Enabled</th><th>Actions</th>  
+        </tr></thead>  
+        <tbody id="tableBody"></tbody>  
+      </table>  
     </div>
-    
-    <div id="emptyMessage" class="device-list-empty" style="display:none">
-      No devices registered. Add devices using the form above.
-    </div>
-  </div>
-  
-  <!-- NOTIFICATION -->
-  <div id="notify" class="notify"></div>
+  </div>  
 
   <script>
-// ============ VARIABLES ============
-let registeredDevices = [];
+// ============ KONFIGURASI GITHUB ============
+const GITHUB_USER = 'cvr-gpiodev';
+const GITHUB_REPO = 'rambu-speeding';
+const GITHUB_TOKEN = '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';
+const GITHUB_API = 'https://api.github.com';
 
-// ============ LOAD SAVED DEVICES ============
-function loadDevices() {
-  const saved = localStorage.getItem('registered_devices');
-  if (saved) {
-    registeredDevices = JSON.parse(saved);
-  }
-  updateDeviceTable();
+// ============ VARIABEL GLOBAL ============
+let rambuData = [];
+let currentActiveRow = -1;
+
+// ============ FUNGSI NOTIFIKASI ============
+function showNotify(msg, isSuccess=true){
+  alert(msg); // Simple alert untuk demo
 }
 
-// ============ SAVE DEVICES ============
-function saveDevices() {
-  localStorage.setItem('registered_devices', JSON.stringify(registeredDevices));
+// ============ FUNGSI LOAD DATA ============
+async function loadData(){  
+  try{ 
+    const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/rambu-data.json`);
+    const data = await response.json();
+    rambuData = data.rambu || [];
+    renderTable(); 
+  } catch(e) {
+    console.error(e);
+    showNotify('Failed to load data', false);
+  } 
 }
 
-// ============ ADD NEW DEVICE ============
-function addDevice() {
-  const deviceId = document.getElementById('deviceIdSelect').value;
-  
-  if (!deviceId) {
-    showNotify('Please select a Device ID', false);
-    return;
-  }
-  
-  // Check if device already exists
-  if (registeredDevices.some(device => device.id === deviceId)) {
-    showNotify(`Device ${deviceId} already exists`, false);
-    return;
-  }
-  
-  // Add new device
-  const newDevice = {
-    id: deviceId,
-    status: 'waiting',
-    connection: 'offline',
-    lastSeen: null,
-    lastUpdate: null,
-    added: new Date().toISOString()
-  };
-  
-  registeredDevices.push(newDevice);
-  saveDevices();
-  
-  // Clear form
-  document.getElementById('deviceIdSelect').value = '';
-  
-  showNotify(`Device ${deviceId} registered successfully`);
-  updateDeviceTable();
+// ============ FUNGSI HITUNG JARAK ============
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
-// ============ UPDATE DEVICE STATUS ============
-function updateDeviceStatus(deviceId, statusData) {
-  // Find device
-  const deviceIndex = registeredDevices.findIndex(d => d.id === deviceId);
-  if (deviceIndex === -1) {
-    console.log(`Device ${deviceId} not registered`);
+// ============ FUNGSI AUTO RADIUS ============
+function calculateAutoRadius() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  const rambuByJalur = {0: [], 1: []};
+  
+  rows.forEach((row, index) => {
+    const jalurSelect = row.cells[6].querySelector('select');
+    const jalur = parseInt(jalurSelect.value);
+    
+    if (jalur === 0 || jalur === 1) {
+      const lonInput = row.cells[1].querySelector('input');
+      const latInput = row.cells[2].querySelector('input');
+      const checkpointInput = row.cells[8].querySelector('input');
+      
+      const lon = parseFloat(lonInput.value);
+      const lat = parseFloat(latInput.value);
+      const checkpoint = parseInt(checkpointInput.value);
+      
+      if (!isNaN(lon) && !isNaN(lat)) {
+        rambuByJalur[jalur].push({
+          rowIndex: index,
+          row: row,
+          lon: lon,
+          lat: lat,
+          checkpoint: checkpoint
+        });
+      }
+    }
+  });
+  
+  for (const jalur in rambuByJalur) {
+    const rambus = rambuByJalur[jalur];
+    
+    rambus.sort((a, b) => a.checkpoint - b.checkpoint);
+    
+    for (let i = 0; i < rambus.length; i++) {
+      let radius = 2000;
+      
+      if (i < rambus.length - 1) {
+        const next = rambus[i + 1];
+        const distance = haversineDistance(
+          rambus[i].lat, rambus[i].lon,
+          next.lat, next.lon
+        );
+        
+        radius = Math.max(20, Math.min(3000, distance));
+      }
+      
+      const radiusInput = rambus[i].row.cells[5].querySelector('input');
+      radiusInput.value = Math.round(radius);
+    }
+  }
+  
+  showNotify('Radius otomatis dihitung');
+}
+
+// ============ FUNGSI SAVE ALL ============
+function saveAll() {
+  const rows = document.querySelectorAll('#tableBody tr');
+  let savedCount = 0;
+  
+  rows.forEach((row, index) => {
+    const saveBtn = row.querySelector('.btn-save');
+    if (saveBtn) {
+      saveBtn.click();
+      savedCount++;
+    }
+  });
+  
+  showNotify(`${savedCount} rambu data saved.`);
+}
+
+// ============ FUNGSI ACTIVE ROW ============
+function setActiveRow(rowIndex) {
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    tr.classList.remove('active-row');
+  });
+  
+  if (rowIndex >= 0) {
+    const rows = document.querySelectorAll('#tableBody tr');
+    if (rowIndex < rows.length) {
+      rows[rowIndex].classList.add('active-row');
+      currentActiveRow = rowIndex;
+    }
+  }
+}
+
+// ============ FUNGSI FILTER TABLE ============
+function filterTable() {
+  const filterValue = document.getElementById('filterJalur').value;
+  const rows = document.querySelectorAll('#tableBody tr');
+  
+  rows.forEach(row => {
+    const jalurSelect = row.cells[6].querySelector('select');
+    const jalurValue = jalurSelect ? jalurSelect.value : '0';
+    
+    if (filterValue === 'all' || jalurValue === filterValue) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+// ============ FUNGSI RENDER TABLE ============
+function renderTable(){  
+  const body = document.getElementById('tableBody'); 
+  body.innerHTML = '';  
+  rambuData.forEach((r,i)=>{ 
+    const tr = document.createElement('tr');  
+    tr.onclick = () => setActiveRow(i);
+    
+    const jalurClass = r.jalur === 0 ? 'jalur-muatan' : r.jalur === 1 ? 'jalur-kosongan' : 'jalur-luar';
+    tr.className = jalurClass;
+    
+    const inp=(v,t='text')=>{
+      const x=document.createElement('input');
+      x.value=v;
+      x.type=t;
+      return x;
+    };
+    
+    const coordInp=(v,className)=>{
+      const x=document.createElement('input');
+      x.value=v;
+      x.type='text';
+      x.className=className;
+      return x;
+    };
+    
+    const sel=(options, selected)=>{
+      const s=document.createElement('select'); 
+      options.forEach(opt=>{  
+        const o=document.createElement('option'); 
+        o.value=opt.value; 
+        o.textContent=opt.text;  
+        if(opt.value==selected) o.selected=true; 
+        s.appendChild(o); 
+      }); 
+      return s; 
+    };  
+    
+    const chk=(checked)=>{
+      const c=document.createElement('input'); 
+      c.type='checkbox'; 
+      c.checked=checked; 
+      return c; 
+    };  
+    
+    const tdNo=document.createElement('td');
+    tdNo.textContent=i+1;
+    tr.appendChild(tdNo);
+    
+    const tdLon=document.createElement('td');
+    const inLon=coordInp(r.lon.toFixed(6),'lon-input longlat-input');
+    inLon.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    tdLon.appendChild(inLon);
+    tr.appendChild(tdLon);
+    
+    const tdLat=document.createElement('td');
+    const inLat=coordInp(r.lat.toFixed(6),'lat-input longlat-input');
+    inLat.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    tdLat.appendChild(inLat);
+    tr.appendChild(tdLat);
+    
+    const inArea=inp(r.nama);
+    inArea.className='area-input';
+    inArea.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const inLimit=inp(r.limit,'number'); 
+    inLimit.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const inRad=inp(r.radius,'number');
+    inRad.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const inCheckpoint=inp(r.checkpoint,'number');
+    inCheckpoint.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const selJalur=sel([
+      {value:0,text:'Muatan'}, 
+      {value:1,text:'Kosongan'}, 
+      {value:2,text:'Luar Area'}
+    ], r.jalur);  
+    
+    selJalur.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const trackOptions = Array.from({length:50},(_,i)=>({ 
+      value: i+1, 
+      text: (i+1) + ' - Track ' + (i+1) 
+    }));  
+    
+    const selMp3=sel(trackOptions, r.mp3Track || 1); 
+    selMp3.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const chkOneTime=chk(r.oneTimeMP3 || false); 
+    chkOneTime.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const chkEnabled=chk(r.enabled);
+    chkEnabled.onclick = (e) => {
+      e.stopPropagation();
+      setActiveRow(i);
+    };
+    
+    const saveBtn=document.createElement('button'); 
+    saveBtn.className='btn-save'; 
+    saveBtn.textContent='Save';  
+    saveBtn.onclick=async(e)=>{ 
+      e.stopPropagation();
+      const row={ 
+        lon:parseFloat(inLon.value)||0, 
+        lat:parseFloat(inLat.value)||0,  
+        nama:inArea.value||'',  
+        limit:parseInt(inLimit.value)||0, 
+        radius:parseInt(inRad.value)||0, 
+        jalur:parseInt(selJalur.value)||0, 
+        enabled:chkEnabled.checked,  
+        mp3Track:parseInt(selMp3.value)||1, 
+        checkpoint:parseInt(inCheckpoint.value)||(i+1), 
+        oneTimeMP3:chkOneTime.checked 
+      };  
+      
+      await saveRambuToGitHub(i, row);
+      rambuData = await loadRambuFromGitHub();
+      renderTable(); 
+      showNotify('Rambu saved');
+    };  
+    
+    const delBtn=document.createElement('button'); 
+    delBtn.className='btn-delete'; 
+    delBtn.textContent='Delete';  
+    delBtn.onclick=async(e)=>{ 
+      e.stopPropagation();
+      if(confirm('Delete this rambu?')){ 
+        await deleteRambuFromGitHub(i);
+        rambuData = await loadRambuFromGitHub();
+        renderTable(); 
+        showNotify('Rambu deleted'); 
+      } 
+    };  
+    
+    const tdActions=document.createElement('td'); 
+    tdActions.onclick = (e) => e.stopPropagation();
+    tdActions.appendChild(saveBtn); 
+    tdActions.appendChild(delBtn);  
+    
+    const cells = [
+      inArea, inLimit, inRad, selJalur, selMp3, inCheckpoint, chkOneTime, chkEnabled, tdActions
+    ];
+    
+    cells.forEach(el=>{  
+      const td=document.createElement('td');
+      td.appendChild(el);
+      tr.appendChild(td); 
+    }); 
+    
+    body.appendChild(tr); 
+  }); 
+      
+  if (rambuData.length > 0 && currentActiveRow === -1) {
+    setActiveRow(0);
+  }
+  filterTable();
+}  
+
+// ============ GITHUB API FUNCTIONS ============
+async function loadRambuFromGitHub() {
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/rambu-data.json`
+    );
+    const data = await response.json();
+    return data.rambu || [];
+  } catch (error) {
+    console.error('Error loading from GitHub:', error);
+    return [];
+  }
+}
+
+async function getFileSHA() {
+  try {
+    const response = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rambu-data.json`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    const data = await response.json();
+    return data.sha;
+  } catch (error) {
+    console.error('Error getting SHA:', error);
+    return null;
+  }
+}
+
+async function saveRambuToGitHub(index, rambu) {
+  try {
+    if (index === -1) {
+      rambuData.push(rambu);
+    } else {
+      rambuData[index] = rambu;
+    }
+    
+    const sha = await getFileSHA();
+    if (!sha) {
+      throw new Error('Failed to get file SHA');
+    }
+    
+    const githubData = {
+      rambu: rambuData,
+      last_updated: new Date().toISOString(),
+      total_count: rambuData.length
+    };
+    
+    const content = btoa(JSON.stringify(githubData, null, 2));
+    
+    const response = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rambu-data.json`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Update rambu ${index === -1 ? 'added' : 'modified'}: ${rambu.nama}`,
+          content: content,
+          sha: sha
+        })
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error('GitHub API error');
+    }
+    
+    await updateVersion();
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving to GitHub:', error);
+    showNotify('Failed to save to GitHub', false);
     return false;
   }
-  
-  // Update status
-  const now = new Date();
-  const device = registeredDevices[deviceIndex];
-  
-  // Update connection status (online/offline)
-  device.connection = 'online';
-  device.lastSeen = now.toISOString();
-  
-  // Update device status (updated/waiting)
-  if (statusData.status_type === 'data_updated') {
-    device.status = 'updated';
-    device.lastUpdate = now.toISOString();
-  } else if (statusData.status_type === 'online') {
-    device.status = 'updated';
-    device.lastUpdate = now.toISOString();
-  }
-  
-  saveDevices();
-  updateDeviceTable();
-  
-  console.log(`Status updated for ${deviceId}`);
-  return true;
 }
 
-// ============ UPDATE DEVICE TABLE ============
-function updateDeviceTable() {
-  const tbody = document.getElementById('deviceTableBody');
-  const emptyMsg = document.getElementById('emptyMessage');
-  
-  if (registeredDevices.length === 0) {
-    tbody.innerHTML = '';
-    emptyMsg.style.display = 'block';
-    return;
+async function deleteRambuFromGitHub(index) {
+  try {
+    rambuData.splice(index, 1);
+    
+    const sha = await getFileSHA();
+    if (!sha) {
+      throw new Error('Failed to get file SHA');
+    }
+    
+    const githubData = {
+      rambu: rambuData,
+      last_updated: new Date().toISOString(),
+      total_count: rambuData.length
+    };
+    
+    const content = btoa(JSON.stringify(githubData, null, 2));
+    
+    const response = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rambu-data.json`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Delete rambu at index ${index}`,
+          content: content,
+          sha: sha
+        })
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error('GitHub API error');
+    }
+    
+    await updateVersion();
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting from GitHub:', error);
+    showNotify('Failed to delete from GitHub', false);
+    return false;
   }
-  
-  emptyMsg.style.display = 'none';
-  
-  let html = '';
-  const now = new Date();
-  
-  registeredDevices.forEach(device => {
-    const lastSeen = device.lastSeen ? new Date(device.lastSeen) : null;
-    const lastUpdate = device.lastUpdate ? new Date(device.lastUpdate) : null;
+}
+
+async function updateVersion() {
+  try {
+    const versionResponse = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/version.txt`
+    );
+    let currentVersion = 1;
     
-    // Determine connection badge
-    let connectionBadge = 'status-offline';
-    let connectionText = 'Offline';
-    
-    if (lastSeen) {
-      const minutesAgo = Math.floor((now - lastSeen) / 60000);
-      
-      if (minutesAgo < 3) {
-        connectionBadge = 'status-online';
-        connectionText = 'Online';
-      } else if (minutesAgo < 10) {
-        connectionBadge = 'status-waiting';
-        connectionText = 'Waiting';
-      }
+    if (versionResponse.ok) {
+      const versionText = await versionResponse.text();
+      currentVersion = parseInt(versionText.trim()) || 1;
     }
     
-    // Determine status badge
-    let statusBadge = 'status-waiting';
-    let statusText = 'Waiting';
-    let lastUpdateText = 'Never';
+    const newVersion = currentVersion + 1;
     
-    if (lastUpdate) {
-      const updateMinutesAgo = Math.floor((now - lastUpdate) / 60000);
-      
-      if (updateMinutesAgo < 5) {
-        statusBadge = 'status-online';
-        statusText = 'Updated';
+    const shaResponse = await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
       }
-      lastUpdateText = `${updateMinutesAgo} min ago`;
-    }
+    );
     
-    html += `
-      <tr>
-        <td><strong>${device.id}</strong></td>
-        <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
-        <td><span class="status-badge ${connectionBadge}">${connectionText}</span></td>
-        <td>${lastUpdateText}<br><small class="last-seen">Last seen: ${lastSeen ? Math.floor((now - lastSeen)/60000) + ' min ago' : 'Never'}</small></td>
-        <td>
-          <button onclick="testDevice('${device.id}')" class="btn" style="padding:4px 8px;font-size:11px;margin-bottom:2px">Test</button>
-          <button onclick="removeDevice('${device.id}')" class="btn btn-danger" style="padding:4px 8px;font-size:11px">Remove</button>
-        </td>
-      </tr>
-    `;
+    const shaData = await shaResponse.json();
+    const sha = shaData.sha;
+    
+    await fetch(
+      `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/version.txt`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Update to version ${newVersion}`,
+          content: btoa(String(newVersion)),
+          sha: sha
+        })
+      }
+    );
+    
+  } catch (error) {
+    console.error('Error updating version:', error);
+  }
+}
+
+// ============ ADD ROW FUNCTION ============
+function addRow(){ 
+  const newIndex = rambuData.length;
+  const newRow = {
+    lon: 117.49389,
+    lat: -2.153491,
+    nama: 'New Area ' + (newIndex + 1),
+    limit: 30,
+    radius: 100,
+    jalur: 0,
+    enabled: true,
+    mp3Track: 1,
+    checkpoint: newIndex + 1,
+    oneTimeMP3: false
+  };
+  
+  rambuData.push(newRow);
+  renderTable();
+  setActiveRow(newIndex);
+  showNotify('New row added');
+}  
+
+// ============ EXPORT CSV FUNCTION ============
+function exportCSV(){  
+  let csv = 'longitude,latitude,area,limit_kph,radius_m,jalur,mp3_track,checkpoint,one_time_mp3,enabled\n';
+  
+  rambuData.forEach(rambu => {
+    csv += `${rambu.lon},${rambu.lat},${rambu.nama},${rambu.limit},${rambu.radius},`;
+    csv += `${rambu.jalur},${rambu.mp3Track || 1},${rambu.checkpoint},`;
+    csv += `${rambu.oneTimeMP3 ? '1' : '0'},${rambu.enabled ? '1' : '0'}\n`;
   });
   
-  tbody.innerHTML = html;
-}
-
-// ============ REMOVE DEVICE ============
-function removeDevice(deviceId) {
-  if (confirm(`Remove device ${deviceId} from monitoring?`)) {
-    registeredDevices = registeredDevices.filter(d => d.id !== deviceId);
-    saveDevices();
-    updateDeviceTable();
-    showNotify(`Device ${deviceId} removed`);
-  }
-}
-
-// ============ TEST DEVICE ============
-function testDevice(deviceId) {
-  // Simulate test connection
-  const mockData = {
-    device_id: deviceId,
-    status_type: 'heartbeat',
-    message: 'Test connection',
-    timestamp: new Date().toISOString()
-  };
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rambu_data_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
   
-  if (updateDeviceStatus(deviceId, mockData)) {
-    showNotify(`Test connection sent to ${deviceId}`);
-  }
-}
+  showNotify('CSV Exported');
+}  
 
-// ============ REFRESH ALL DEVICES ============
-function refreshAllDevices() {
-  // Check for stale devices
-  const now = new Date();
-  let updatedCount = 0;
+// ============ IMPORT CSV FUNCTION ============
+async function importCSV(input){  
+  const file = input.files[0];  
+  if(!file) return;  
   
-  registeredDevices.forEach(device => {
-    if (device.lastSeen) {
-      const minutesAgo = Math.floor((now - new Date(device.lastSeen)) / 60000);
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const csvText = e.target.result;
+    
+    try {
+      const lines = csvText.split('\n');
+      const newRambuData = [];
       
-      if (minutesAgo > 10) {
-        device.connection = 'offline';
-        updatedCount++;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const fields = line.split(',');
+        if (fields.length >= 6) {
+          const rambu = {
+            lon: parseFloat(fields[0]) || 0,
+            lat: parseFloat(fields[1]) || 0,
+            nama: fields[2] || 'Unknown',
+            limit: parseInt(fields[3]) || 30,
+            radius: parseInt(fields[4]) || 100,
+            jalur: parseInt(fields[5]) || 0,
+            mp3Track: fields.length > 6 ? parseInt(fields[6]) || 1 : 1,
+            checkpoint: fields.length > 7 ? parseInt(fields[7]) || 1 : 1,
+            oneTimeMP3: fields.length > 8 ? (fields[8] === '1' || fields[8].toLowerCase() === 'true') : false,
+            enabled: fields.length > 9 ? (fields[9] === '1' || fields[9].toLowerCase() === 'true') : true
+          };
+          newRambuData.push(rambu);
+        }
       }
+      
+      if (newRambuData.length > 0) {
+        rambuData = newRambuData;
+        
+        const sha = await getFileSHA();
+        const githubData = {
+          rambu: rambuData,
+          last_updated: new Date().toISOString(),
+          total_count: rambuData.length
+        };
+        
+        const content = btoa(JSON.stringify(githubData, null, 2));
+        
+        await fetch(
+          `${GITHUB_API}/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/rambu-data.json`,
+          {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: `Import CSV: ${newRambuData.length} rambu`,
+              content: content,
+              sha: sha
+            })
+          }
+        );
+        
+        await updateVersion();
+        renderTable();
+        showNotify(`Imported ${newRambuData.length} rambu from CSV`);
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      showNotify('Import failed', false);
     }
-  });
-  
-  saveDevices();
-  updateDeviceTable();
-  showNotify(`Refreshed ${updatedCount} devices`);
-}
-
-// ============ CLEAR ALL DEVICES ============
-function clearAllDevices() {
-  if (confirm('Clear all registered devices? This cannot be undone.')) {
-    registeredDevices = [];
-    saveDevices();
-    updateDeviceTable();
-    showNotify('All devices cleared');
-  }
-}
-
-// ============ SIMULATE INCOMING STATUS ============
-function simulateIncomingStatus() {
-  if (registeredDevices.length === 0) return;
-  
-  // Pick random device
-  const randomDevice = registeredDevices[Math.floor(Math.random() * registeredDevices.length)];
-  const statusTypes = ['heartbeat', 'data_updated', 'online'];
-  const statusType = statusTypes[Math.floor(Math.random() * statusTypes.length)];
-  
-  const mockData = {
-    device_id: randomDevice.id,
-    status_type: statusType,
-    message: statusType === 'data_updated' ? 'Data updated' : 'Status update',
-    timestamp: new Date().toISOString()
   };
   
-  updateDeviceStatus(randomDevice.id, mockData);
-}
-
-// ============ WEBHOOK HANDLER (Simulation) ============
-function setupWebhookListener() {
-  // Simulate incoming status every 30 seconds
-  setInterval(() => {
-    if (registeredDevices.length > 0 && Math.random() > 0.7) {
-      simulateIncomingStatus();
-    }
-  }, 30000);
-}
-
-// ============ MANUAL STATUS UPDATE (for testing) ============
-function manualStatusUpdate(deviceId, statusType) {
-  const mockData = {
-    device_id: deviceId,
-    status_type: statusType,
-    message: 'Manual update',
-    timestamp: new Date().toISOString()
-  };
-  
-  if (updateDeviceStatus(deviceId, mockData)) {
-    showNotify(`Manual ${statusType} update for ${deviceId}`);
-  }
-}
-
-// ============ NOTIFICATION ============
-function showNotify(message, isSuccess = true) {
-  const notify = document.getElementById('notify');
-  notify.textContent = message;
-  notify.className = isSuccess ? 'notify' : 'notify error';
-  notify.style.display = 'block';
-  
-  setTimeout(() => {
-    notify.style.display = 'none';
-  }, 3000);
-}
+  reader.readAsText(file);
+  input.value = '';
+}  
 
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {
-  loadDevices();
-  setupWebhookListener();
-  
-  // Auto-refresh table every 5 seconds
-  setInterval(updateDeviceTable, 5000);
-  
-  // Add test device if empty
-  if (registeredDevices.length === 0) {
-    const testDevice = {
-      id: 'SPD-ALRT001',
-      status: 'updated',
-      connection: 'online',
-      lastSeen: new Date().toISOString(),
-      lastUpdate: new Date().toISOString(),
-      added: new Date().toISOString()
-    };
-    
-    registeredDevices.push(testDevice);
-    saveDevices();
-    updateDeviceTable();
-  }
+  loadData();
 });
-
-// ============ GLOBAL FUNCTIONS FOR ESP32 TO CALL ============
-// ESP32 can call these via JavaScript injection or POST request
-window.receiveDeviceStatus = function(deviceId, statusType, message) {
-  const mockData = {
-    device_id: deviceId,
-    status_type: statusType,
-    message: message,
-    timestamp: new Date().toISOString()
-  };
-  
-  return updateDeviceStatus(deviceId, mockData);
-};
-
-window.getRegisteredDevices = function() {
-  return registeredDevices.map(d => d.id);
-};
-
-// Example: ESP32 can call: receiveDeviceStatus('SPD-ALRT001', 'online', 'Device connected')
-  </script>
+  </script>  
 </body>
 </html>
