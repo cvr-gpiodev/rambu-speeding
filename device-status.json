@@ -1,1 +1,22 @@
-
+{
+  "SPD-ALRT001": {
+    "online": false,
+    "last_seen": "never",
+    "status": "offline",
+    "message": "Device not connected yet",
+    "rambu_count": 0,
+    "ip": "0.0.0.0",
+    "rssi": 0,
+    "uptime": 0
+  },
+  "SPD-ALRT002": {
+    "online": false,
+    "last_seen": "never",
+    "status": "offline",
+    "message": "Device not connected yet",
+    "rambu_count": 0,
+    "ip": "0.0.0.0",
+    "rssi": 0,
+    "uptime": 0
+  }
+}
