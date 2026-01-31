@@ -5,7 +5,7 @@
       "lat": -2.153491,
       "nama": "RANGGA_MUATAN",
       "limit": 20,
-      "radius": 100,
+      "radius": 10,
       "jalur": 0,
       "checkpoint": 1,
       "enabled": true,
